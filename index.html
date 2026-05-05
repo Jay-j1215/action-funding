@@ -391,15 +391,30 @@ function editGTitle(el,order){var r=null;for(var i=0;i<gData.length;i++){if(gDat
 function resetAll(){if(!confirm('모든 펀딩 정보를 초기화할까요?'))return;leftData=[];rightData=[];sdTotal=0;orderL=0;orderR=0;gData=[];gOrderN=0;document.getElementById('memo').value='';document.getElementById('teamCount').value=5;renderLeft();renderRight();updateStats();renderGroup();}
 function openLink(u){
   if(!u) return;
-  window.open(u, '_blank');
+  var a=document.createElement('a');
+  a.href=u; a.target='_blank'; a.rel='noopener noreferrer';
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 var _dopamineWin=null;
 function openDopamine(tab){
+  var url='dopamine.html#'+tab;
   if(_dopamineWin&&!_dopamineWin.closed){
     _dopamineWin.focus();
     _dopamineWin.postMessage({type:'switchTab',tab:tab},'*');
   } else {
-    _dopamineWin=window.open('dopamine.html#'+tab,'dopamine','width=960,height=900,resizable=no,scrollbars=no');
+    var a=document.createElement('a');
+    a.href=url; a.target='dopamine'; a.rel='noopener noreferrer';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // 탭 참조 획득 시도 (같은 탭명이면 재사용됨)
+    setTimeout(function(){
+      try{ _dopamineWin=window.open('','dopamine'); }catch(e){}
+    },300);
   }
 }
 function openRoulette(){openDopamine('roulette');}
