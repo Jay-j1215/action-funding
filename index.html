@@ -155,7 +155,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
       <button class="bgm-btn" id="playBtn" onclick="togglePlay()">▶</button>
       <button class="bgm-btn" onclick="stopBgm()">⏹</button>
       <button class="bgm-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-      <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="50" oninput="setVolume(this.value)">
+      <input type="range" class="vol-slider" id="volSlider" min="0" max="50" value="10" oninput="setVolume(this.value)">
     </div>
   </div>
   <audio id="bgmAudio" preload="auto" crossorigin="anonymous">
@@ -184,7 +184,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
     <div class="mi" onclick="openDopamine('slot')">
       <div class="mi-icon"><svg viewBox="0 0 30 30" fill="none"><rect x="2" y="5" width="26" height="20" rx="4" fill="#7c3aed"/><rect x="2" y="5" width="26" height="7" rx="4" fill="#6d28d9"/><rect x="5" y="9" width="6" height="9" rx="2" fill="#1e293b"/><rect x="12" y="9" width="6" height="9" rx="2" fill="#1e293b"/><rect x="19" y="9" width="6" height="9" rx="2" fill="#1e293b"/><text x="6" y="17" font-size="6" fill="#facc15" font-weight="800">7</text><text x="13" y="17" font-size="6" fill="#f97316" font-weight="800">7</text><text x="20" y="17" font-size="6" fill="#facc15" font-weight="800">7</text><rect x="11" y="22" width="8" height="3" rx="1.5" fill="#a78bfa"/></svg></div>슬롯머신
     </div>
-    <div class="mi" onclick="openLink('https://docs.google.com/spreadsheets/d/1gVlRFiys64szW_eTJeyzdFtw6cxtNlz/edit?gid=220935960#gid=220935960')">
+    <div class="mi" onclick="openLink('https://docs.google.com/spreadsheets/d/1gVlRFiys64szW_eTJ-eyzdFtw6cxtNlz/edit?gid=220935960#gid=220935960')">
       <div class="mi-icon"><svg viewBox="0 0 30 30" fill="none"><rect x="1" y="4" width="28" height="25" rx="4" fill="#fff" stroke="#7dd3fc" stroke-width="1.5"/><rect x="1" y="4" width="28" height="10" rx="4" fill="#0ea5e9"/><rect x="8" y="1" width="3" height="8" rx="1.5" fill="#0284c7"/><rect x="19" y="1" width="3" height="8" rx="1.5" fill="#0284c7"/><rect x="4" y="17" width="5" height="4" rx="1" fill="#bae6fd"/><rect x="12" y="17" width="5" height="4" rx="1" fill="#e2e8f0"/><rect x="21" y="17" width="5" height="4" rx="1" fill="#e2e8f0"/><rect x="4" y="24" width="5" height="4" rx="1" fill="#e2e8f0"/><rect x="12" y="24" width="5" height="4" rx="1" fill="#0ea5e9"/><rect x="21" y="24" width="5" height="4" rx="1" fill="#e2e8f0"/></svg></div>일정표
     </div>
   </div>
@@ -389,7 +389,10 @@ function editGTitle(el,order){var r=null;for(var i=0;i<gData.length;i++){if(gDat
 
 /* ── 초기화 ── */
 function resetAll(){if(!confirm('모든 펀딩 정보를 초기화할까요?'))return;leftData=[];rightData=[];sdTotal=0;orderL=0;orderR=0;gData=[];gOrderN=0;document.getElementById('memo').value='';document.getElementById('teamCount').value=5;renderLeft();renderRight();updateStats();renderGroup();}
-function openLink(u){window.open(u,'_blank');}
+function openLink(u){
+  if(!u) return;
+  window.open(u, '_blank');
+}
 var _dopamineWin=null;
 function openDopamine(tab){
   if(_dopamineWin&&!_dopamineWin.closed){
@@ -403,7 +406,7 @@ function openRoulette(){openDopamine('roulette');}
 
 document.addEventListener('DOMContentLoaded',function(){
   var a=document.getElementById('bgmAudio');
-  a.volume=0.5;
+  a.volume=0.1;
   a.addEventListener('ended',function(){document.getElementById('playBtn').textContent='▶';});
   document.getElementById('memo').addEventListener('keydown',function(e){if(e.key==='Enter'&&this.value.split('\n').length>=4)e.preventDefault();});
   renderLeft();renderRight();updateStats();renderGroup();
