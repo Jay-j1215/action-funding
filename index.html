@@ -405,16 +405,7 @@ function openDopamine(tab){
     _dopamineWin.focus();
     _dopamineWin.postMessage({type:'switchTab',tab:tab},'*');
   } else {
-    var a=document.createElement('a');
-    a.href=url; a.target='dopamine'; a.rel='noopener noreferrer';
-    a.style.display='none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // 탭 참조 획득 시도 (같은 탭명이면 재사용됨)
-    setTimeout(function(){
-      try{ _dopamineWin=window.open('','dopamine'); }catch(e){}
-    },300);
+    _dopamineWin=window.open(url,'dopamine');
   }
 }
 function openRoulette(){openDopamine('roulette');}
