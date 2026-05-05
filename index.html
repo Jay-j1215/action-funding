@@ -405,7 +405,13 @@ function openDopamine(tab){
     _dopamineWin.focus();
     _dopamineWin.postMessage({type:'switchTab',tab:tab},'*');
   } else {
-    _dopamineWin=window.open(url,'dopamine');
+    var a=document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    _dopamineWin=null;
   }
 }
 function openRoulette(){openDopamine('roulette');}
