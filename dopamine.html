@@ -116,32 +116,36 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 
 /* ========== 공뽑기 스타일 ========== */
 .ball-container{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
-.ball-machine-area{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;min-height:0;}
-.ball-machine{position:relative;width:432px;height:432px;}
-.ball-machine-base{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:336px;height:96px;background:linear-gradient(180deg, #94a3b8 0%, #64748b 100%);border-radius:0 0 48px 48px;box-shadow:0 6px 20px rgba(0,0,0,0.3);}
-.ball-machine-opening{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:96px;height:36px;background:#1e293b;border-radius:18px 18px 0 0;}
-
-.ball-input-area{padding:20px;flex-shrink:0;}
-
-.ball-input{width:100%;padding:12px 16px;border:2px solid #bae6fd;border-radius:10px;font-size:16px;font-weight:600;color:#1e293b;outline:none;background:#fff;font-family:inherit;margin-bottom:8px;}
-
+.ball-machine-area{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 20px 4px;min-height:0;}
+/* 전체 래퍼: SVG 기계 + 캔버스 오버레이 */
+.ball-machine-wrap{position:relative;width:480px;height:470px;flex-shrink:0;}
+/* SVG 기계 배경 */
+.ball-machine-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+/* cx=186,cy=220,r=186 → canvas left=0, top=34, size=372 */
+.ball-machine{position:absolute;left:0;top:34px;width:372px;height:372px;}
+/* 배출공 이동 엘리먼트 */
+#ballShowcaseBall{
+  position:absolute;width:30px;height:30px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,0.35);
+  z-index:20;pointer-events:none;
+}
+/* 당첨공 확인 영역 레이블 */
+.ball-winner-zone-label{font-size:9px;font-weight:700;color:#64748b;text-align:center;line-height:1.3;}
+.ball-input-area{padding:6px 20px 10px;flex-shrink:0;}
+.ball-input{width:100%;padding:9px 13px;border:2px solid #bae6fd;border-radius:10px;font-size:14px;font-weight:600;color:#1e293b;outline:none;background:#fff;font-family:inherit;margin-bottom:7px;}
 .ball-input:focus{border-color:#0ea5e9;}
-
-.ball-tags{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;max-height:108px;overflow-y:auto;margin-bottom:12px;}
-
+.ball-tags{display:flex;flex-wrap:wrap;gap:5px;min-height:32px;max-height:90px;overflow-y:auto;margin-bottom:9px;}
 .ball-tags::-webkit-scrollbar{width:4px;}
-
 .ball-tags::-webkit-scrollbar-thumb{background:#bae6fd;border-radius:3px;}
-
-.ball-tag{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;font-size:14px;font-weight:700;color:#fff;}
-
-.ball-tag-x{background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:14px;font-weight:700;padding:0 2px;line-height:1;}
-
+.ball-tag{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:20px;font-size:13px;font-weight:700;color:#fff;}
+.ball-tag-x{background:none;border:none;color:rgba(255,255,255,0.8);cursor:pointer;font-size:13px;font-weight:700;padding:0 2px;line-height:1;}
 .ball-tag-x:hover{color:#fff;}
-
-.ball-count-control{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-
-.ball-count-control label{font-size:16px;font-weight:700;color:#075985;}
+.ball-count-control{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.ball-count-control label{font-size:14px;font-weight:700;color:#075985;}
+.ball-count-input{width:65px;padding:7px;border:2px solid #bae6fd;border-radius:8px;font-size:15px;font-weight:600;text-align:center;}
+.ball-controls{display:flex;gap:10px;}
 
 .ball-count-input{width:60px;padding:8px;border:2px solid #bae6fd;border-radius:8px;font-size:16px;font-weight:600;text-align:center;background:#fff;}
 
@@ -291,25 +295,62 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
     <div class="left">
       <div class="ball-container">
         <div class="ball-machine-area">
-          <div class="ball-machine">
-            <canvas id="ballCanvas" width="384" height="384" style="position:absolute;top:0;left:50%;transform:translateX(-50%);border-radius:50%;box-shadow:inset 0 -20px 40px rgba(14,165,233,0.2), 0 10px 30px rgba(0,0,0,0.15);"></canvas>
-            <div class="ball-machine-base">
-              <div class="ball-machine-opening"></div>
+          <div class="ball-machine-wrap">
+
+            <!-- SVG: 기계 전체 외형 (캔버스 아래 레이어) -->
+            <svg class="ball-machine-svg" viewBox="0 0 480 460" xmlns="http://www.w3.org/2000/svg">
+              <!-- ② 받침대 -->
+              <polygon points="93,330 279,330 336,455 24,455"
+                       fill="#c8d3dc" stroke="#90a4ae" stroke-width="2"/>
+              <text x="186" y="435" text-anchor="middle"
+                    font-family="'Malgun Gothic',sans-serif" font-size="22"
+                    font-weight="700" fill="#6b7280">Lotto</text>
+
+              <!-- ④-1 수직관 먼저 (x=388~438, 공반개=13px 우측 이동) -->
+              <rect x="388" y="2" width="50" height="340" rx="25"
+                    fill="#e2e8f0" stroke="#94a3b8" stroke-width="2.5"/>
+
+              <!-- ④-2 수평관: 배출구~수직관 우측 끝까지, 수직관 위에 겹쳐 연결감 -->
+              <rect x="161" y="2" width="277" height="50" rx="25"
+                    fill="#e2e8f0" stroke="#94a3b8" stroke-width="2.5"/>
+
+              <!-- ① 본체: 수직관/수평관 위에 그려서 본체 뒤 가려짐 표현 -->
+              <circle cx="186" cy="220" r="186"
+                      fill="white" stroke="#c0c8d0" stroke-width="4"/>
+
+              <!-- ③ 배출구: 수평관과 같은 범위, 검은색으로 덮어 자연스러운 입구 표현 -->
+              <rect x="161" y="2" width="50" height="50" rx="25"
+                    fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+
+              <!-- ⑤ 당첨공 확인 영역: 수직관 cx=413에 맞춤 -->
+              <circle cx="413" cy="398" r="30"
+                      fill="none" stroke="#94a3b8" stroke-width="2"
+                      stroke-dasharray="5,4" opacity="0.5"/>
+            </svg>
+
+            <!-- ① 본체 캔버스 (SVG 원 위에 정확히 겹침) -->
+            <div class="ball-machine">
+              <canvas id="ballCanvas" width="372" height="372"
+                style="position:absolute;top:0;left:0;border-radius:50%;
+                       box-shadow:0 8px 24px rgba(0,0,0,0.12);">
+              </canvas>
             </div>
-            <!-- 배출 공 쇼케이스 -->
-            <div id="ballShowcase" style="display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:76px;height:76px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.35),0 0 0 4px rgba(255,255,255,0.3);z-index:20;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),opacity 0.25s;"></div>
+
+            <!-- 배출공 이동 엘리먼트 -->
+            <div id="ballShowcaseBall"></div>
+
           </div>
         </div>
-        
+
         <div class="ball-input-area">
-          <input class="ball-input" id="ballInput" placeholder="항목 입력 후 엔터" onkeydown="handleBallInput(event)">
+          <input class="ball-input" id="ballInput"
+                 placeholder="항목 입력 후 엔터" onkeydown="handleBallInput(event)">
           <div class="ball-tags" id="ballTags"></div>
-          
           <div class="ball-count-control">
             <label>뽑을 개수</label>
-            <input type="number" class="ball-count-input" id="ballCount" value="1" min="0" placeholder="0=전체">
+            <input type="number" class="ball-count-input" id="ballCount"
+                   value="1" min="0" placeholder="0=전체">
           </div>
-          
           <div class="ball-controls">
             <button class="btn btn-shuffle" onclick="shuffleBalls()">섞기</button>
             <button class="btn btn-spin" id="btnBallPick" onclick="pickBalls()">뽑기</button>
@@ -1138,8 +1179,9 @@ function removeBallItem(idx){
 
 // ── Canvas 물리 엔진 기반 공뽑기 ──────────────────────
 var _bc = { raf: null, bodies: [], phase: 'idle' };
-var GLOBE_R = 178, BALL_R = 26, CX = 192, CY = 192;
+var GLOBE_R = 178, BALL_R = 26, CX = 186, CY = 186;
 var _idleRAF = null;
+var _windCycle = 0;
 
 function renderBallGlobe(){ _initBodies(); _drawCanvas(); if(!ballState.picking) _startIdleAnimation(); }
 function generateBallPositions(){}
@@ -1163,8 +1205,7 @@ function lightenColor(hex,amt){
 function _drawCanvas(){
   var canvas=document.getElementById('ballCanvas'); if(!canvas) return;
   var ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,384,384);
-  // 구 배경
+  ctx.clearRect(0,0,372,372);
   var grad=ctx.createRadialGradient(CX-60,CY-60,12,CX,CY,GLOBE_R+10);
   grad.addColorStop(0,'rgba(255,255,255,0.6)');
   grad.addColorStop(0.6,'rgba(186,230,253,0.2)');
@@ -1172,10 +1213,9 @@ function _drawCanvas(){
   ctx.beginPath(); ctx.arc(CX,CY,GLOBE_R,0,Math.PI*2);
   ctx.fillStyle=grad; ctx.fill();
   ctx.strokeStyle='#bae6fd'; ctx.lineWidth=10; ctx.stroke();
-  // 공
   _bc.bodies.forEach(function(b){
     if(!b.alive) return;
-    if(!isFinite(b.x)||!isFinite(b.y)) return; // NaN 방어
+    if(!isFinite(b.x)||!isFinite(b.y)) return;
     ctx.save();
     if(b.exiting){
       ctx.globalAlpha=Math.max(0,1-b.exitProgress*1.8);
@@ -1197,64 +1237,104 @@ function _drawCanvas(){
     ctx.fillText(txt,b.x,b.y);
     ctx.restore();
   });
-  // 구 광택 오버레이
   var shine=ctx.createRadialGradient(CX-66,CY-66,6,CX-36,CY-36,GLOBE_R*0.65);
   shine.addColorStop(0,'rgba(255,255,255,0.18)'); shine.addColorStop(1,'rgba(255,255,255,0)');
   ctx.beginPath(); ctx.arc(CX,CY,GLOBE_R,0,Math.PI*2);
   ctx.fillStyle=shine; ctx.fill();
-  // 구 테두리
   ctx.beginPath(); ctx.arc(CX,CY,GLOBE_R,0,Math.PI*2);
   ctx.strokeStyle='rgba(186,230,253,0.75)'; ctx.lineWidth=10; ctx.stroke();
 }
 
+// 바람 물리: 하단 중앙 바람 → 위로 솟구침 → 벽에서 좌우 회전 → 하단 중앙 집결 반복
 function _physicsStep(wind){
   var n=_bc.bodies.length;
   for(var i=0;i<n;i++){
     var b=_bc.bodies[i];
     if(!b.alive||b.exiting) continue;
-    // 랜덤 바람
-    var wa=Math.random()*Math.PI*2;
-    b.vx+=Math.cos(wa)*wind; b.vy+=Math.sin(wa)*wind;
+
+    var dx=b.x-CX, dy=b.y-CY;
+    var dist=Math.sqrt(dx*dx+dy*dy);
+    var mr=GLOBE_R-BALL_R-1;
+
+    // ── 1. 하단 바람: 중앙 하단 공을 위로 솟구치게 ──
+    // 중앙 근처(x±60) + 하단(dy>0)이면 강한 상향 바람
+    var windForceX=0, windForceY=0;
+    if(dy > 0 && Math.abs(dx) < GLOBE_R*0.4){
+      var upStr = wind * 5.5 * (1 - Math.abs(dx)/(GLOBE_R*0.4));
+      windForceY = -upStr;
+      // 약간의 수평 랜덤성 (좌우 분산)
+      windForceX = (Math.random()-0.5)*wind*1.5;
+    }
+
+    // ── 2. 상단 벽 근처: x 위치에 따라 회전력 ──
+    // 상단(dy < -GLOBE_R*0.3)에 있으면 x위치로 방향 결정
+    if(dy < -GLOBE_R*0.3){
+      if(dx < -BALL_R){
+        // 중앙 왼쪽 → 반시계 (왼쪽 벽 타고 내려가도록: vx 음수, vy 양수)
+        windForceX += -wind * 2.0;
+        windForceY +=  wind * 0.8;
+      } else if(dx > BALL_R){
+        // 중앙 오른쪽 → 시계 (오른쪽 벽 타고 내려가도록: vx 양수, vy 양수)
+        windForceX +=  wind * 2.0;
+        windForceY +=  wind * 0.8;
+      }
+    }
+
+    // ── 3. 하단 집결: 수평 중심 인력 (바닥에서 중앙으로) ──
+    if(dy > GLOBE_R*0.5){
+      windForceX += -dx * 0.018 * wind;
+    }
+
+    // ── 4. 전체 중력 (약하게) ──
+    windForceY += wind * 0.3;
+
+    // 적용
+    b.vx += windForceX;
+    b.vy += windForceY;
+
     // 속도 제한
     var spd=Math.sqrt(b.vx*b.vx+b.vy*b.vy);
-    if(spd>8){b.vx=b.vx/spd*8;b.vy=b.vy/spd*8;}
+    var maxSpd = 10;
+    if(spd>maxSpd){b.vx=b.vx/spd*maxSpd;b.vy=b.vy/spd*maxSpd;}
     b.x+=b.vx; b.y+=b.vy;
-    // 구 내벽
-    var dx=b.x-CX,dy=b.y-CY,dd=Math.sqrt(dx*dx+dy*dy),mr=GLOBE_R-BALL_R-1;
-    if(dd>mr&&dd>0){var nx=dx/dd,ny=dy/dd,dot=b.vx*nx+b.vy*ny;b.vx-=2*dot*nx*0.80;b.vy-=2*dot*ny*0.80;b.x=CX+nx*(mr-0.5);b.y=CY+ny*(mr-0.5);}
-    // 공 충돌
+
+    // 내벽 반사
+    var ex=b.x-CX,ey=b.y-CY,ed=Math.sqrt(ex*ex+ey*ey);
+    if(ed>mr&&ed>0){
+      var nx=ex/ed,ny=ey/ed,dot=b.vx*nx+b.vy*ny;
+      b.vx-=2*dot*nx*0.75; b.vy-=2*dot*ny*0.75;
+      b.x=CX+nx*(mr-0.5); b.y=CY+ny*(mr-0.5);
+    }
+
+    // 공끼리 충돌
     for(var j=i+1;j<n;j++){
       var o=_bc.bodies[j]; if(!o.alive||o.exiting) continue;
-      var ex=b.x-o.x,ey=b.y-o.y,ed=Math.sqrt(ex*ex+ey*ey),md=BALL_R*2;
-      if(ed<md&&ed>0.5){
-        var nx2=ex/ed,ny2=ey/ed,rv=(b.vx-o.vx)*nx2+(b.vy-o.vy)*ny2;
-        if(rv<0){b.vx-=rv*nx2*0.85;b.vy-=rv*ny2*0.85;o.vx+=rv*nx2*0.85;o.vy+=rv*ny2*0.85;}
-        var ov=(md-ed)/2+0.3;b.x+=nx2*ov;b.y+=ny2*ov;o.x-=nx2*ov;o.y-=ny2*ov;
-        // 충돌 후 내벽 재체크
+      var cx2=b.x-o.x,cy2=b.y-o.y,cd=Math.sqrt(cx2*cx2+cy2*cy2),md=BALL_R*2;
+      if(cd<md&&cd>0.5){
+        var nx2=cx2/cd,ny2=cy2/cd,rv=(b.vx-o.vx)*nx2+(b.vy-o.vy)*ny2;
+        if(rv<0){b.vx-=rv*nx2*0.8;b.vy-=rv*ny2*0.8;o.vx+=rv*nx2*0.8;o.vy+=rv*ny2*0.8;}
+        var ov=(md-cd)/2+0.3;b.x+=nx2*ov;b.y+=ny2*ov;o.x-=nx2*ov;o.y-=ny2*ov;
         var dx2=b.x-CX,dy2=b.y-CY,dd2=Math.sqrt(dx2*dx2+dy2*dy2);
         if(dd2>mr&&dd2>0){b.x=CX+(dx2/dd2)*(mr-0.5);b.y=CY+(dy2/dd2)*(mr-0.5);}
         var dx3=o.x-CX,dy3=o.y-CY,dd3=Math.sqrt(dx3*dx3+dy3*dy3);
         if(dd3>mr&&dd3>0){o.x=CX+(dx3/dd3)*(mr-0.5);o.y=CY+(dy3/dd3)*(mr-0.5);}
       }
     }
-    // NaN 방어
-    if(!isFinite(b.x)||!isFinite(b.y)){b.x=CX;b.y=CY;b.vx=(Math.random()-0.5)*3;b.vy=(Math.random()-0.5)*3;}
+    if(!isFinite(b.x)||!isFinite(b.y)){b.x=CX;b.y=CY;b.vx=0;b.vy=-3;}
   }
 }
 
 function _startIdleAnimation(){
   if(_idleRAF) cancelAnimationFrame(_idleRAF);
   _bc.phase='idle';
-  function loop(){ if(_bc.phase!=='idle'){_idleRAF=null;return;} _physicsStep(0.1); _drawCanvas(); _idleRAF=requestAnimationFrame(loop); }
+  function loop(){ if(_bc.phase!=='idle'){_idleRAF=null;return;} _physicsStep(0.08); _drawCanvas(); _idleRAF=requestAnimationFrame(loop); }
   _idleRAF=requestAnimationFrame(loop);
 }
 
-// 뽑기 완료 후 남은 공들이 중력으로 하단에 자연스럽게 가라앉는 애니메이션
 function _settleToBottom(onDone){
   if(_idleRAF){cancelAnimationFrame(_idleRAF);_idleRAF=null;}
   _bc.phase='settling';
   var GRAVITY=0.35, FRICTION=0.88, STOP_THRESHOLD=0.15;
-
   function settle(){
     if(_bc.phase!=='settling'){if(onDone)onDone();return;}
     var anyMoving=false;
@@ -1262,24 +1342,14 @@ function _settleToBottom(onDone){
     for(var i=0;i<n;i++){
       var b=_bc.bodies[i];
       if(!b.alive||b.exiting) continue;
-      // 중력 적용
-      b.vy+=GRAVITY;
-      // 마찰
-      b.vx*=FRICTION; b.vy*=FRICTION;
+      b.vy+=GRAVITY; b.vx*=FRICTION; b.vy*=FRICTION;
       b.x+=b.vx; b.y+=b.vy;
-      // 구 내벽 (아래쪽으로 자연스럽게 쌓이도록 반사력 약하게)
       var dx=b.x-CX,dy=b.y-CY,dd=Math.sqrt(dx*dx+dy*dy),mr=GLOBE_R-BALL_R-1;
-      if(dd>mr&&dd>0){
-        var nx=dx/dd,ny=dy/dd,dot=b.vx*nx+b.vy*ny;
-        b.vx-=2*dot*nx*0.35; b.vy-=2*dot*ny*0.35;
-        b.x=CX+nx*(mr-0.5); b.y=CY+ny*(mr-0.5);
-      }
-      // 공끼리 충돌
+      if(dd>mr&&dd>0){var nx=dx/dd,ny=dy/dd,dot=b.vx*nx+b.vy*ny;b.vx-=2*dot*nx*0.35;b.vy-=2*dot*ny*0.35;b.x=CX+nx*(mr-0.5);b.y=CY+ny*(mr-0.5);}
       for(var j=i+1;j<n;j++){
         var o=_bc.bodies[j]; if(!o.alive||o.exiting) continue;
         var ex=b.x-o.x,ey=b.y-o.y,ed=Math.sqrt(ex*ex+ey*ey),md=BALL_R*2;
-        if(ed<md&&ed>0.5){
-          var nx2=ex/ed,ny2=ey/ed,rv=(b.vx-o.vx)*nx2+(b.vy-o.vy)*ny2;
+        if(ed<md&&ed>0.5){var nx2=ex/ed,ny2=ey/ed,rv=(b.vx-o.vx)*nx2+(b.vy-o.vy)*ny2;
           if(rv<0){b.vx-=rv*nx2*0.4;b.vy-=rv*ny2*0.4;o.vx+=rv*nx2*0.4;o.vy+=rv*ny2*0.4;}
           var ov=(md-ed)/2+0.3;b.x+=nx2*ov;b.y+=ny2*ov;o.x-=nx2*ov;o.y-=ny2*ov;
           var dx2=b.x-CX,dy2=b.y-CY,dd2=Math.sqrt(dx2*dx2+dy2*dy2);
@@ -1288,7 +1358,6 @@ function _settleToBottom(onDone){
           if(dd3>mr&&dd3>0){o.x=CX+(dx3/dd3)*(mr-0.5);o.y=CY+(dy3/dd3)*(mr-0.5);}
         }
       }
-      // NaN 방어
       if(!isFinite(b.x)||!isFinite(b.y)){b.x=CX;b.y=CY+GLOBE_R*0.5;b.vx=0;b.vy=0;}
       if(Math.abs(b.vx)>STOP_THRESHOLD||Math.abs(b.vy)>STOP_THRESHOLD) anyMoving=true;
     }
@@ -1298,6 +1367,7 @@ function _settleToBottom(onDone){
   }
   _idleRAF=requestAnimationFrame(settle);
 }
+
 
 function shuffleBalls(){
   if(ballState.picking) return;
@@ -1309,7 +1379,6 @@ function shuffleBalls(){
 function pickBalls(){
   if(ballState.picking||ballState.items.length===0) return;
   var count=parseInt(document.getElementById('ballCount').value);
-  // 0이면 전체 뽑기
   if(isNaN(count)||count<=0) count=ballState.items.length;
   if(count>ballState.items.length) count=ballState.items.length;
   ballState.picking=true;
@@ -1321,111 +1390,151 @@ function pickBalls(){
 
   if(_idleRAF){cancelAnimationFrame(_idleRAF);_idleRAF=null;}
   _bc.phase='mixing';
-  var mixDur=3000+Math.random()*2000, mixStart=null;
 
-  function mixLoop(ts){
-    if(!mixStart) mixStart=ts;
-    var el=ts-mixStart, pr=el/mixDur;
-    var wind=pr<0.65?0.65:0.65*Math.pow(1-(pr-0.65)/0.35,1.5);
-    _physicsStep(wind); _drawCanvas();
-    if(el<mixDur) _bc.raf=requestAnimationFrame(mixLoop);
-    else { _bc.phase='picking'; _bc.raf=null; startPicking(); }
-  }
-  _bc.raf=requestAnimationFrame(mixLoop);
+  // 배출구: 캔버스 정중앙 상단
+  var exitX = CX;
+  var exitY = CY - GLOBE_R + BALL_R + 2;
 
-  function showShowcase(label, color, onDone){
-    var el=document.getElementById('ballShowcase');
-    el.textContent=label;
-    el.style.background=color;
-    el.style.display='flex';
-    el.style.opacity='0';
-    el.style.transform='translateX(-50%) scale(0.4)';
-    // 쇼케이스 동안 공들은 계속 움직임 (별도 RAF)
-    var showcaseRAF=null;
-    function keepMoving(){ _physicsStep(0.06); _drawCanvas(); showcaseRAF=requestAnimationFrame(keepMoving); }
-    showcaseRAF=requestAnimationFrame(keepMoving);
+  // ── 배출공 애니메이션 (배출구 → 배출라인 → 당첨공 영역) ──
+  function animateDischarge(b, label, color, onDone){
+    var openX=186, openY=27;
+    var upY=27;
+    var tubeX=413;
+    var tubeTopY=27;
+    var tubeBottomY=342;
+    var destX=413, destY=398;
+    var R=26;
+
+    var ball=document.getElementById('ballShowcaseBall');
+    ball.textContent=label;
+    ball.style.background=color;
+    ball.style.width=(R*2)+'px'; ball.style.height=(R*2)+'px';
+    ball.style.fontSize='9px';
+    ball.style.left=(openX-R)+'px';
+    ball.style.top=(openY-R)+'px';
+    ball.style.display='flex';
+    ball.style.opacity='1';
+    ball.style.transform='scale(0.9)';
+    ball.style.transition='none';
+
+    var keepRAF=null;
+    function keepMoving(){ _physicsStep(0.04); _drawCanvas(); keepRAF=requestAnimationFrame(keepMoving); }
+    keepRAF=requestAnimationFrame(keepMoving);
 
     setTimeout(function(){
-      el.style.opacity='1';
-      el.style.transform='translateX(-50%) scale(1.15)';
+      ball.style.transition='top 0.2s ease-out';
+      ball.style.top=(upY-R)+'px';
       setTimeout(function(){
-        el.style.transform='translateX(-50%) scale(1)';
+        ball.style.transition='left 0.4s linear';
+        ball.style.left=(tubeX-R)+'px';
         setTimeout(function(){
-          el.style.opacity='0';
-          el.style.transform='translateX(-50%) scale(0.6)';
+          ball.style.transition='top 0.85s cubic-bezier(0.4,0,0.8,1)';
+          ball.style.top=(tubeBottomY-R)+'px';
           setTimeout(function(){
-            el.style.display='none';
-            cancelAnimationFrame(showcaseRAF);
-            onDone();
-          }, 260);
-        }, 800);
-      }, 200);
-    }, 40);
+            ball.style.transition='top 0.15s ease-out';
+            ball.style.top=(destY-R)+'px';
+            ballState.results.push({pickNum:ballState.results.length+1,label:label,color:color});
+            renderBallResults();
+            setTimeout(function(){
+              ball.style.transition='opacity 0.35s ease-out,transform 0.35s ease-out';
+              ball.style.opacity='0';
+              ball.style.transform='scale(0.3)';
+              setTimeout(function(){
+                ball.style.display='none';
+                ball.style.opacity='1'; ball.style.transform='scale(1)';
+                cancelAnimationFrame(keepRAF);
+                onDone();
+              },380);
+            },1000);
+          },200);
+        },420);
+      },220);
+    },60);
   }
 
-  function startPicking(){
-    var picked_count=0;
-    var total=toPick.length;
-    var exitX=CX, exitY=GLOBE_R+CY-BALL_R+5;
+  // ── 믹싱 후 뽑기 반복 ──
+  var remainPick = count; // 남은 뽑기 횟수
 
-    function pickNext(){
-      if(picked_count>=total){
-        setTimeout(function(){
-          ballState.picking=false;
-          document.getElementById('btnBallPick').disabled=false;
-          _settleToBottom();
-        },300);
-        return;
-      }
+  function doMixThenPick(){
+    var mixDur=3000+Math.random()*2000, mixStart=null;
+    _bc.phase='mixing';
 
-      // 배출구에 가장 가까운 살아있는 공 선택
-      var best=null, bestDist=Infinity;
-      _bc.bodies.forEach(function(b){
-        if(!b.alive||b.exiting) return;
-        var dx=b.x-exitX, dy=b.y-exitY;
-        var d=Math.sqrt(dx*dx+dy*dy);
-        if(d<bestDist){bestDist=d;best=b;}
-      });
-      if(!best){picked_count++;pickNext();return;}
-
-      var b=best;
-      var sx=b.x,sy=b.y,moveDur=500,moveStart=null;
-      function moveToExit(ts){
-        if(!moveStart) moveStart=ts;
-        var p=Math.min((ts-moveStart)/moveDur,1);
-        var ease=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
-        b.x=sx+(exitX-sx)*ease; b.y=sy+(exitY-sy)*ease; b.vx=0; b.vy=0;
-        _physicsStep(0.03); _drawCanvas();
-        if(p<1) _bc.raf=requestAnimationFrame(moveToExit);
-        else {
-          b.exiting=true; b.exitProgress=0;
-          var exitDur=320, exitStart=null;
-          function doExit(ts2){
-            if(!exitStart) exitStart=ts2;
-            b.exitProgress=Math.min((ts2-exitStart)/exitDur,1);
-            b.y=exitY+b.exitProgress*72;
-            _physicsStep(0.03); _drawCanvas();
-            if(b.exitProgress<1) _bc.raf=requestAnimationFrame(doExit);
-            else {
-              b.alive=false;
-              var label=b.label;
-              picked.push(label);
-              ballState.results.push({pickNum:ballState.results.length+1, label:label, color:b.color});
-              renderBallResults();
-              showShowcase(label, b.color, function(){
-                picked_count++;
-                setTimeout(pickNext, 150);
-              });
-            }
-          }
-          _bc.raf=requestAnimationFrame(doExit);
-        }
-      }
-      _bc.raf=requestAnimationFrame(moveToExit);
+    function mixLoop(ts){
+      if(!mixStart) mixStart=ts;
+      var el=ts-mixStart, pr=el/mixDur;
+      var wind = pr<0.7 ? 0.7 : 0.7*Math.pow(1-(pr-0.7)/0.3,1.2);
+      _physicsStep(wind); _drawCanvas();
+      if(el<mixDur) _bc.raf=requestAnimationFrame(mixLoop);
+      else { _bc.phase='picking'; _bc.raf=null; doPick(); }
     }
-    pickNext();
+    _bc.raf=requestAnimationFrame(mixLoop);
   }
+
+  function doPick(){
+    // 배출구에 가장 가까운 공 선택
+    var best=null, bestDist=Infinity;
+    _bc.bodies.forEach(function(b){
+      if(!b.alive||b.exiting) return;
+      var dx=b.x-exitX, dy=b.y-exitY;
+      var d=Math.sqrt(dx*dx+dy*dy);
+      if(d<bestDist){bestDist=d;best=b;}
+    });
+    if(!best){
+      // 살아있는 공 없음 → 완료
+      finish(); return;
+    }
+
+    var b=best;
+    var sx=b.x,sy=b.y,moveDur=380,moveStart=null;
+    function moveToExit(ts){
+      if(!moveStart) moveStart=ts;
+      var p=Math.min((ts-moveStart)/moveDur,1);
+      var ease=p*p;
+      b.x=sx+(exitX-sx)*ease; b.y=sy+(exitY-sy)*ease; b.vx=0; b.vy=0;
+      _physicsStep(0.02); _drawCanvas();
+      if(p<1){ _bc.raf=requestAnimationFrame(moveToExit); }
+      else {
+        b.exiting=true; b.exitProgress=0;
+        var exitDur=200, exitStart2=null;
+        function doExit(ts2){
+          if(!exitStart2) exitStart2=ts2;
+          b.exitProgress=Math.min((ts2-exitStart2)/exitDur,1);
+          b.y=exitY - b.exitProgress*40;
+          _physicsStep(0.02); _drawCanvas();
+          if(b.exitProgress<1){ _bc.raf=requestAnimationFrame(doExit); }
+          else {
+            b.alive=false;
+            var label=b.label, color=b.color;
+            picked.push(label);
+            remainPick--;
+            animateDischarge(b, label, color, function(){
+              if(remainPick>0){
+                // 다음 공: 다시 믹싱 후 뽑기
+                doMixThenPick();
+              } else {
+                finish();
+              }
+            });
+          }
+        }
+        _bc.raf=requestAnimationFrame(doExit);
+      }
+    }
+    _bc.raf=requestAnimationFrame(moveToExit);
+  }
+
+  function finish(){
+    setTimeout(function(){
+      ballState.picking=false;
+      document.getElementById('btnBallPick').disabled=false;
+      _settleToBottom();
+    },300);
+  }
+
+  // 첫 믹싱 시작
+  doMixThenPick();
 }
+
 
 function renderBallResults(){
   var el=document.getElementById('ballResultList');
@@ -1450,7 +1559,8 @@ function resetBalls(){
   document.getElementById('ballInput').value='';
   document.getElementById('ballCount').value='1';
   document.getElementById('btnBallPick').disabled=false;
-  var sc=document.getElementById('ballShowcase'); if(sc) sc.style.display='none';
+  var sc=document.getElementById('ballShowcaseBall'); if(sc){sc.style.display='none';}
+  var zl=document.getElementById('ballWinnerZoneLabel'); if(zl){zl.textContent='대기중';zl.style.color='';zl.style.fontSize='10px';}
   renderBallTags(); renderBallGlobe(); renderBallResults();
 }
 
