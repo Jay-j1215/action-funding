@@ -7,10 +7,10 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64748b;display:flex;align-items:flex-start;justify-content:flex-start;padding:16px 0 0 16px;}
-.app{display:flex;width:1280px;height:900px;overflow:hidden;flex-shrink:0;border-radius:16px;}
+.app{display:flex;width:1280px;height:800px;overflow:hidden;flex-shrink:0;border-radius:16px;}
 
 /* ── SIDEBAR 320px ── */
-.sidebar{width:320px;min-width:320px;height:900px;background:#f1f5f9;display:flex;flex-direction:column;overflow:hidden;}
+.sidebar{width:320px;min-width:320px;height:800px;background:#f1f5f9;display:flex;flex-direction:column;overflow:hidden;}
 
 .s-banner{height:62px;background:#38bdf8;display:flex;align-items:center;gap:12px;padding:0 16px;flex-shrink:0;}
 .s-banner-img{width:44px;height:44px;background:transparent;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
@@ -24,29 +24,48 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .bgm-btn:hover{background:#0ea5e9;color:#fff;}
 .vol-slider{flex:1;height:4px;accent-color:#0ea5e9;cursor:pointer;}
 
-.s-menu{flex:1;overflow-y:auto;padding:4px 0;background:#f1f5f9;}
-.s-menu::-webkit-scrollbar{width:3px;}
-.s-menu::-webkit-scrollbar-thumb{background:#cbd5e1;}
+.s-menu{flex:1;overflow-y:visible;padding:4px 0;background:#f1f5f9;}
 .mi{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:19px;font-weight:700;color:#0369a1;cursor:pointer;transition:background 0.15s;}
 .mi:hover{background:#e0f2fe;color:#075985;}
-.mi-icon{width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.mi-icon svg{width:30px;height:30px;}
+.mi-icon{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.mi-icon svg{width:28px;height:28px;}
 
-.s-banners{flex-shrink:0;padding:8px 10px;display:flex;flex-direction:column;gap:5px;background:#e2e8f0;}
-.s-bi{height:78px;border-radius:8px;overflow:hidden;cursor:pointer;position:relative;}
+.s-banners{flex-shrink:0;padding:6px 10px;display:flex;flex-direction:column;gap:4px;background:#e2e8f0;}
+.s-bi{height:70px;border-radius:8px;overflow:hidden;cursor:pointer;position:relative;}
 .s-bi:hover{opacity:0.88;}
 .s-bi img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
 .s-bi-fb{width:100%;height:100%;background:#bae6fd;display:flex;align-items:center;justify-content:center;font-size:18px;color:#0369a1;font-weight:700;}
 .s-bi-logo{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 
 /* ── CONTENT 960px ── */
-.content{flex:1;height:900px;background:#e2e8f0;display:flex;flex-direction:column;overflow:hidden;}
+.content{flex:1;height:800px;background:#e2e8f0;display:flex;flex-direction:column;overflow:hidden;}
 .c-header{height:62px;background:#075985;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .c-title{font-size:28px;font-weight:800;color:#fff;letter-spacing:1px;}
 
-.c-memo{margin:8px 10px 0;flex-shrink:0;}
-.c-memo textarea{width:100%;height:130px;background:#fff;border-radius:8px;padding:9px 12px;font-size:17px;font-weight:700;color:#1e293b;resize:none;outline:none;font-family:inherit;line-height:1.75;border:none;overflow:hidden;}
-.c-memo textarea::placeholder{color:#94a3b8;font-weight:400;}
+.c-memo{margin:8px 10px 0;flex-shrink:0;display:flex;gap:8px;}
+.c-memo-left{flex:1;}
+.c-memo-left textarea{width:100%;height:130px;background:#fff;border-radius:8px;padding:9px 12px;font-size:17px;font-weight:700;color:#1e293b;resize:none;outline:none;font-family:inherit;line-height:1.75;border:none;overflow:hidden;}
+.c-memo-left textarea::placeholder{color:#94a3b8;font-weight:400;}
+
+.c-timer{width:380px;background:#fff;border-radius:8px;padding:10px;display:flex;flex-direction:column;height:130px;gap:6px;}
+.timer-row1{display:grid;grid-template-columns:1fr auto auto 1fr auto auto 1fr;gap:6px;height:82px;align-items:end;}
+.timer-num-wrap{background:#bae6fd;border-radius:8px;border:2px solid #0ea5e9;display:flex;align-items:center;justify-content:center;height:100%;}
+.timer-num{font-size:52px;font-weight:800;color:#075985;font-family:monospace;line-height:1;}
+.timer-label{font-size:14px;font-weight:700;color:#64748b;line-height:1;padding-bottom:2px;}
+.timer-colon{font-size:48px;font-weight:800;color:#0ea5e9;line-height:1;align-self:stretch;display:flex;align-items:center;padding-bottom:20px;}
+.timer-btns-col{display:flex;flex-direction:column;gap:6px;height:100%;align-self:stretch;}
+.timer-top-btn{border-radius:6px;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;justify-content:center;flex:1;}
+.timer-top-btn.start{background:#22c55e;}
+.timer-top-btn.start:hover{background:#16a34a;}
+.timer-top-btn.stop{background:#ef4444;}
+.timer-top-btn.stop:hover{background:#dc2626;}
+.timer-top-btn.reset{background:#64748b;}
+.timer-top-btn.reset:hover{background:#475569;}
+.timer-row2{display:grid;grid-template-columns:repeat(6, 1fr);gap:6px;}
+.timer-btn{padding:8px 0;border-radius:6px;border:none;background:#0ea5e9;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.timer-btn:hover{background:#0284c7;}
+.timer-btn.minus{background:#f97316;}
+.timer-btn.minus:hover{background:#ea580c;}
 
 .c-tabs{display:flex;align-items:center;gap:8px;padding:7px 10px;flex-shrink:0;}
 .tab-btn{display:flex;align-items:center;gap:6px;padding:7px 18px;border-radius:8px;border:none;background:#fff;font-size:19px;font-weight:700;color:#0369a1;cursor:pointer;transition:all 0.15s;}
@@ -54,8 +73,9 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .tab-btn.active{background:#0ea5e9;color:#fff;}
 .tab-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
 .tab-icon svg{width:22px;height:22px;}
-.reset-btn{margin-left:auto;padding:7px 18px;border-radius:8px;border:none;background:#f97316;color:#fff;font-size:19px;font-weight:700;cursor:pointer;}
-.reset-btn:hover{opacity:0.85;}
+.reset-btn{margin-left:auto;padding:7px 18px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-size:19px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.reset-btn:hover{background:#b91c1c;}
+.reset-btn svg{width:20px;height:20px;}
 
 /* ── 개인 탭 ── */
 .c-stat{margin:0 10px;background:#075985;border-radius:10px;display:flex;align-items:stretch;overflow:hidden;height:58px;flex-shrink:0;}
@@ -70,8 +90,8 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .team-btn{width:28px;height:28px;border-radius:50%;border:none;background:#fff;cursor:pointer;font-size:16px;font-weight:800;color:#0369a1;display:flex;align-items:center;justify-content:center;}
 .team-btn:hover{background:#0ea5e9;color:#fff;}
 
-.c-boards{display:flex;flex:1;gap:8px;margin:8px 10px 10px;}
-.board{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;background:#fff;}
+.c-boards{display:flex;flex:1;gap:8px;margin:8px 10px 10px;min-height:0;}
+.board{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;background:#fff;min-height:0;}
 .board-input{display:flex;align-items:center;gap:7px;padding:9px 10px;background:#bae6fd;flex-shrink:0;height:66px;border-radius:12px 12px 0 0;}
 .b-fi{flex:1;padding:8px 12px;border:none;border-radius:8px;font-size:20px;font-weight:600;color:#1e293b;outline:none;background:#fff;height:48px;}
 .b-fi::placeholder{color:#94a3b8;font-weight:400;}
@@ -81,7 +101,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .board-list{flex:1;overflow-y:auto;padding:2px 0;}
 .board-list::-webkit-scrollbar{width:4px;}
 .board-list::-webkit-scrollbar-thumb{background:#bae6fd;border-radius:3px;}
-.b-row{display:flex;align-items:center;padding:8px 46px 8px 10px;border-bottom:1px solid #f1f5f9;position:relative;gap:7px;min-height:52px;}
+.b-row{display:flex;align-items:center;padding:6px 46px 6px 10px;border-bottom:1px solid #f1f5f9;position:relative;gap:7px;min-height:43px;}
 .b-row:hover{background:#f0f9ff;}
 .b-row.sd-row{background:#eff6ff;}
 .b-row.ph-row{background:#fff;}
@@ -112,13 +132,13 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .g-toggle{display:flex;gap:4px;}
 .g-toggle-btn{padding:5px 14px;border-radius:6px;border:none;font-size:16px;font-weight:700;cursor:pointer;background:#0284c7;color:#7dd3fc;transition:all 0.15s;}
 .g-toggle-btn.active{background:#fff;color:#075985;}
-.g-boards{display:flex;flex:1;gap:8px;margin:8px 10px 10px;}
-.g-board{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;background:#fff;}
+.g-boards{display:flex;flex:1;gap:8px;margin:8px 10px 10px;min-height:0;}
+.g-board{flex:1;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;background:#fff;min-height:0;}
 .g-board-input{display:flex;align-items:center;gap:7px;padding:9px 10px;background:#bae6fd;flex-shrink:0;height:66px;border-radius:12px 12px 0 0;}
 .g-list{flex:1;overflow-y:auto;padding:2px 0;}
 .g-list::-webkit-scrollbar{width:4px;}
 .g-list::-webkit-scrollbar-thumb{background:#bae6fd;border-radius:3px;}
-.g-row{display:flex;align-items:center;padding:8px 46px 8px 10px;border-bottom:1px solid #f1f5f9;position:relative;gap:7px;min-height:52px;}
+.g-row{display:flex;align-items:center;padding:6px 46px 6px 10px;border-bottom:1px solid #f1f5f9;position:relative;gap:7px;min-height:43px;}
 .g-row:hover{background:#f0f9ff;}
 .g-row.ph-row{background:#fff;}
 .g-rank{width:36px;text-align:center;font-size:16px;font-weight:700;color:#64748b;flex-shrink:0;}
@@ -202,7 +222,43 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
       <img src="https://stimg.sooplive.com/SKIN/361633/458467b57f05e82cb.jpg" alt="방송국" onerror="this.outerHTML='<div class=s-bi-fb>방송국</div>'">
       <div class="s-bi-logo" style="background:#00b4d8;"><img src="https://www.sooplive.com/favicon.ico" width="16" height="16" style="object-fit:contain;" onerror="this.outerHTML='<span style=font-size:8px;color:#fff;font-weight:800;>S</span>'"></div>
     </div>
-  <div style="text-align:right;padding:4px 12px 8px;font-size:12px;color:#94a3b8;font-weight:600;background:transparent;">V0.2</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 12px 8px;font-size:12px;color:#94a3b8;font-weight:600;background:transparent;">
+    <span>v0.3</span>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span style="font-size:11px;">Produced by</span>
+      <svg width="36" height="20" viewBox="0 0 36 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- 충전 그라데이션 (왼쪽에서 오른쪽으로 옅어짐) -->
+          <linearGradient id="chargeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#22c55e"/>
+            <stop offset="60%" stop-color="#4ade80"/>
+            <stop offset="85%" stop-color="#86efac"/>
+            <stop offset="100%" stop-color="#bbf7d0"/>
+          </linearGradient>
+        </defs>
+        
+        <!-- 건전지 본체 -->
+        <rect x="2" y="4" width="30" height="12" rx="1.8" fill="#e2e8f0" stroke="#475569" stroke-width="1.3"/>
+        <!-- 건전지 플러스 극 (우측 돌기) -->
+        <rect x="32" y="7.5" width="2.5" height="5" rx="0.5" fill="#64748b" stroke="#475569" stroke-width="0.8"/>
+        
+        <!-- 5개 레벨 칸 구분선 -->
+        <line x1="8" y1="5" x2="8" y2="15" stroke="#cbd5e1" stroke-width="0.9"/>
+        <line x1="14" y1="5" x2="14" y2="15" stroke="#cbd5e1" stroke-width="0.9"/>
+        <line x1="20" y1="5" x2="20" y2="15" stroke="#cbd5e1" stroke-width="0.9"/>
+        <line x1="26" y1="5" x2="26" y2="15" stroke="#cbd5e1" stroke-width="0.9"/>
+        
+        <!-- 충전된 레벨 (5칸 모두, 그라데이션) -->
+        <rect x="3.5" y="5.5" width="27" height="9" rx="0.6" fill="url(#chargeGrad)"/>
+        
+        <!-- 번개 (90도 회전하여 가로로 길게, 2~4번 칸 걸침) -->
+        <g transform="translate(17, 10) rotate(90) translate(-17, -10)">
+          <!-- 번개 아이콘 -->
+          <path d="M19 1L15 9h3l-1.5 8L22 9h-3L19 1z" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.3" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -211,7 +267,35 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
   <div class="c-header"><div class="c-title">Funding Board</div></div>
 
   <div class="c-memo">
-    <textarea id="memo" placeholder="펀딩 정보(리그명, 참여인원 등)를 입력해 주세요."></textarea>
+    <div class="c-memo-left">
+      <textarea id="memo" placeholder="펀딩 정보(리그명, 참여인원 등)를 입력해 주세요."></textarea>
+    </div>
+    <div class="c-timer">
+      <div class="timer-row1">
+        <div class="timer-num-wrap">
+          <div class="timer-num" id="timerMin">00</div>
+        </div>
+        <div class="timer-label">(분)</div>
+        <div class="timer-colon">:</div>
+        <div class="timer-num-wrap">
+          <div class="timer-num" id="timerSec">00</div>
+        </div>
+        <div class="timer-label">(초)</div>
+        <div></div>
+        <div class="timer-btns-col">
+          <button class="timer-top-btn start" id="timerStartBtn" onclick="startTimer()">시작</button>
+          <button class="timer-top-btn reset" onclick="resetTimer()">리셋</button>
+        </div>
+      </div>
+      <div class="timer-row2">
+        <button class="timer-btn minus" onclick="adjustTimer(-60)">-1분</button>
+        <button class="timer-btn minus" onclick="adjustTimer(-30)">-30초</button>
+        <button class="timer-btn minus" onclick="adjustTimer(-10)">-10초</button>
+        <button class="timer-btn" onclick="adjustTimer(10)">+10초</button>
+        <button class="timer-btn" onclick="adjustTimer(30)">+30초</button>
+        <button class="timer-btn" onclick="adjustTimer(60)">+1분</button>
+      </div>
+    </div>
   </div>
 
   <div class="c-tabs">
@@ -221,7 +305,14 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
     <button class="tab-btn" id="tab-grp" onclick="setTab('grp')">
       <div class="tab-icon"><svg viewBox="0 0 22 22" fill="none"><circle cx="7" cy="7" r="3.5" fill="currentColor" opacity="0.9"/><path d="M1 19c0-3.5 2.5-5.5 6-5.5s6 2 6 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="15" cy="7" r="3.5" fill="currentColor" opacity="0.7"/><path d="M9 19c0-3.5 2.5-5.5 6-5.5s6 2 6 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/><circle cx="20" cy="18" r="4" fill="#16a34a"/><text x="20" y="21" text-anchor="middle" font-size="6" font-weight="800" fill="#fff">₩</text></svg></div>단체
     </button>
-    <button class="reset-btn" onclick="resetAll()">초기화</button>
+    <button class="reset-btn" onclick="resetAll()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/>
+        <line x1="18" y1="9" x2="12" y2="15"/>
+        <line x1="12" y1="9" x2="18" y2="15"/>
+      </svg>
+      모두 삭제
+    </button>
   </div>
 
   <!-- 개인 탭 -->
@@ -423,6 +514,69 @@ document.addEventListener('DOMContentLoaded',function(){
   document.getElementById('memo').addEventListener('keydown',function(e){if(e.key==='Enter'&&this.value.split('\n').length>=4)e.preventDefault();});
   renderLeft();renderRight();updateStats();renderGroup();
 });
+
+// ========== 타이머 기능 ==========
+var timerState = {
+  totalSeconds: 0,
+  running: false,
+  interval: null
+};
+
+function updateTimerDisplay() {
+  var min = Math.floor(timerState.totalSeconds / 60);
+  var sec = timerState.totalSeconds % 60;
+  document.getElementById('timerMin').textContent = String(min).padStart(2, '0');
+  document.getElementById('timerSec').textContent = String(sec).padStart(2, '0');
+}
+
+function adjustTimer(seconds) {
+  if (timerState.running) return;
+  timerState.totalSeconds = Math.max(0, timerState.totalSeconds + seconds);
+  updateTimerDisplay();
+}
+
+function startTimer() {
+  if (timerState.totalSeconds === 0) return;
+  
+  if (timerState.running) {
+    // 일시정지
+    timerState.running = false;
+    clearInterval(timerState.interval);
+    document.getElementById('timerStartBtn').textContent = '시작';
+    document.getElementById('timerStartBtn').className = 'timer-top-btn start';
+  } else {
+    // 시작
+    timerState.running = true;
+    document.getElementById('timerStartBtn').textContent = '정지';
+    document.getElementById('timerStartBtn').className = 'timer-top-btn stop';
+    
+    timerState.interval = setInterval(function() {
+      if (timerState.totalSeconds > 0) {
+        timerState.totalSeconds--;
+        updateTimerDisplay();
+      } else {
+        // 타이머 종료
+        timerState.running = false;
+        clearInterval(timerState.interval);
+        document.getElementById('timerStartBtn').textContent = '시작';
+        document.getElementById('timerStartBtn').className = 'timer-top-btn start';
+        
+        // 알람 소리 (beep)
+        beep();
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  timerState.running = false;
+  timerState.totalSeconds = 0;
+  clearInterval(timerState.interval);
+  document.getElementById('timerStartBtn').textContent = '시작';
+  document.getElementById('timerStartBtn').className = 'timer-top-btn start';
+  updateTimerDisplay();
+}
+
 </script>
 </body>
 </html>
