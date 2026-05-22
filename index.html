@@ -83,7 +83,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .stat-inner{display:flex;align-items:center;gap:10px;padding:0 14px;}
 .stat-box{background:#fff;border-radius:8px;padding:5px 14px;display:flex;align-items:center;gap:8px;}
 .stat-box-lbl{font-size:16px;font-weight:700;color:#0369a1;}
-.stat-box-val{font-size:22px;font-weight:800;color:#075985;width:116px;text-align:center;white-space:nowrap;}
+.stat-box-val{font-size:22px;font-weight:800;color:#075985;width:100px;text-align:center;white-space:nowrap;}
 
 /* ── 보드 ── */
 .c-boards-unified{display:flex;flex:1;gap:8px;margin:0 10px 10px;min-height:0;}
@@ -115,7 +115,9 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
 .b-row:hover .del-btn{opacity:1;}
 .edit-input{border:2px solid #0ea5e9;border-radius:6px;padding:3px 8px;font-size:19px;font-weight:600;outline:none;width:110px;color:#1e293b;}
 
-/* ── 단체 stat ── */
+.eye-btn{background:none;border:none;cursor:pointer;color:#fff;opacity:0.8;padding:4px;display:flex;align-items:center;margin-left:6px;flex-shrink:0;}
+.eye-btn:hover{opacity:1;}
+.eye-btn svg{width:22px;height:22px;}
 .g-stat-val{display:flex;align-items:center;padding:0 14px;}
 .g-stat-box{background:#fee8d6;border-radius:8px;padding:5px 18px;display:flex;align-items:center;gap:8px;}
 .g-stat-box-val{font-size:22px;font-weight:800;color:#075985;width:136px;text-align:center;white-space:nowrap;}
@@ -194,7 +196,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
       <div class="s-bi-logo" style="background:#00b4d8;"><img src="https://www.sooplive.com/favicon.ico" width="16" height="16" style="object-fit:contain;" onerror="this.outerHTML='<span style=font-size:8px;color:#fff;font-weight:800;>S</span>'"></div>
     </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 12px 8px;font-size:12px;color:#94a3b8;font-weight:600;background:transparent;">
-    <span>v0.4</span>
+    <span>v0.5</span>
     <div style="display:flex;align-items:center;gap:4px;">
       <span style="font-size:11px;">Produced by</span>
       <svg width="36" height="20" viewBox="0 0 36 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -287,6 +289,9 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#64
       <div class="stat-inner">
         <div class="stat-box" style="background:#dcfce7;"><span class="stat-box-lbl">총</span><span class="stat-box-val" id="statTotal">0개</span></div>
         <div class="stat-box" style="background:#fee2e2;"><span class="stat-box-lbl">두</span><span class="stat-box-val" id="statPer">0개</span></div>
+        <button class="eye-btn" id="eyeBtn" onclick="toggleIndVisible()" title="개인 펀딩 숨기기/보이기">
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
       </div>
     </div>
     <div class="stat-half">
@@ -337,7 +342,29 @@ function stopBgm(){var a=document.getElementById('bgmAudio');a.pause();a.current
 function toggleMute(){var a=document.getElementById('bgmAudio');bgmMuted=!bgmMuted;a.muted=bgmMuted;document.getElementById('muteBtn').textContent=bgmMuted?'🔇':'🔊';if(!bgmMuted)document.getElementById('volSlider').value=Math.round(a.volume*100);}
 function setVolume(v){var a=document.getElementById('bgmAudio');var vol=parseInt(v)/100;a.volume=vol;a.muted=(vol===0);bgmMuted=(vol===0);document.getElementById('muteBtn').textContent=(vol===0)?'🔇':'🔊';}
 
-/* ── 탭 (제거됨) ── */
+/* ── 개인 펀딩 숨기기 토글 ── */
+var indVisible=true;
+function toggleIndVisible(){
+  indVisible=!indVisible;
+  // 아이콘 변경
+  document.getElementById('eyeIcon').innerHTML=indVisible
+    ?'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+    :'<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  // 현황 바 수량 텍스트 색
+  var hide=!indVisible;
+  var totalEl=document.getElementById('statTotal');
+  var perEl=document.getElementById('statPer');
+  totalEl.style.color=hide?'#dcfce7':'#075985';
+  perEl.style.color=hide?'#fee2e2':'#075985';
+  // 개인 보드 텍스트 색
+  applyIndHide(hide);
+}
+function applyIndHide(hide){
+  var list=document.getElementById('leftList');
+  if(!list)return;
+  list.querySelectorAll('.b-name,.b-cnt').forEach(function(el){el.style.color=hide?'rgba(0,0,0,0)':'';});
+  list.querySelectorAll('.rank-wrap').forEach(function(el){el.style.opacity=hide?'0':'';});
+}
 
 /* ── 개인: 통계 ── */
 function changeTeam(d){var el=document.getElementById('teamCount');el.value=Math.min(10,Math.max(1,(parseInt(el.value)||5)+d));updateStats();}
@@ -354,6 +381,7 @@ function renderLeft(){
   sorted.forEach(function(r,i){html+='<div class="b-row" onmouseenter="this.querySelector(\'.del-btn\').style.opacity=1" onmouseleave="this.querySelector(\'.del-btn\').style.opacity=0"><div class="rank-wrap">'+rankIcon(i)+'</div><span class="b-name" onclick="editLName(this,'+r.order+')">'+r.name+'</span><span class="b-cnt" onclick="editLCnt(this,'+r.order+')" style="margin-left:auto">'+r.cnt.toLocaleString()+'개</span><button class="del-btn" onclick="delLeft('+r.order+')">✕</button></div>';});
   for(var i=sorted.length;i<3;i++){html+='<div class="b-row ph-row"><div class="rank-wrap">'+rankIcon(i)+'</div><span class="b-name ph-name">—</span></div>';}
   document.getElementById('leftList').innerHTML=html;
+  applyIndHide(!indVisible);
 }
 
 /* ── 렌더: 우측(펀딩2) ── */
@@ -381,9 +409,17 @@ function delRight(o){for(var i=0;i<rightData.length;i++){if(rightData[i].order==
 
 /* ── 개인: 편집 ── */
 function editLName(el,order){if(el.classList.contains('no-edit')||el.classList.contains('ph-name'))return;var cur=el.textContent;var inp=document.createElement('input');inp.className='edit-input';inp.value=cur;inp.style.width='140px';el.replaceWith(inp);inp.focus();inp.select();function save(){var v=inp.value.trim()||cur;for(var i=0;i<leftData.length;i++){if(leftData[i].order===order){leftData[i].name=v;break;}}renderLeft();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=cur;inp.blur();}});}
-function editLCnt(el,order){var r=null;for(var i=0;i<leftData.length;i++){if(leftData[i].order===order){r=leftData[i];break;}}if(!r)return;var inp=document.createElement('input');inp.className='edit-input';inp.type='number';inp.value=r.cnt;el.replaceWith(inp);inp.focus();inp.select();function save(){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0)r.cnt=v;renderLeft();updateStats();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});}
+function editLCnt(el,order){var r=null;for(var i=0;i<leftData.length;i++){if(leftData[i].order===order){r=leftData[i];break;}}if(!r)return;
+  var preSorted=leftData.slice().sort(function(a,b){return b.cnt!==a.cnt?b.cnt-a.cnt:a.order-b.order;});
+  preSorted.forEach(function(item,idx){item.order=idx;});
+  orderL=leftData.length;
+  var inp=document.createElement('input');inp.className='edit-input';inp.type='number';inp.value=r.cnt;el.replaceWith(inp);inp.focus();inp.select();function save(){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0)r.cnt=v;renderLeft();updateStats();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});}
 function editRName(el,order){var cur=el.textContent;var inp=document.createElement('input');inp.className='edit-input';inp.value=cur;inp.style.width='140px';el.replaceWith(inp);inp.focus();inp.select();function save(){var v=inp.value.trim()||cur;for(var i=0;i<rightData.length;i++){if(rightData[i].order===order){rightData[i].name=v;break;}}renderRight();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=cur;inp.blur();}});}
-function editCheer(el,order){var r=null;for(var i=0;i<rightData.length;i++){if(rightData[i].order===order){r=rightData[i];break;}}if(!r)return;var inp=document.createElement('input');inp.className='edit-input';inp.type='number';inp.value=r.cnt;el.replaceWith(inp);inp.focus();inp.select();function save(){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0)r.cnt=v;renderRight();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});}
+function editCheer(el,order){var r=null;for(var i=0;i<rightData.length;i++){if(rightData[i].order===order){r=rightData[i];break;}}if(!r)return;
+  var preSorted=rightData.slice().sort(function(a,b){return b.cnt!==a.cnt?b.cnt-a.cnt:a.order-b.order;});
+  preSorted.forEach(function(item,idx){item.order=idx;});
+  orderR=rightData.length;
+  var inp=document.createElement('input');inp.className='edit-input';inp.type='number';inp.value=r.cnt;el.replaceWith(inp);inp.focus();inp.select();function save(){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0)r.cnt=v;renderRight();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});}
 
 /* ── 단체 ── */
 function getGTotal(){return gData.reduce(function(s,r){return s+r.cnt;},0);}
@@ -437,7 +473,12 @@ function renderGroup(){
 function addGroup(){var raw=document.getElementById('gIn').value;var p=parseInput(raw);if(!p){beep();return;}var ex=null;for(var i=0;i<gData.length;i++){if(gData[i].name===p.name){ex=gData[i];break;}}if(ex)ex.cnt+=p.cnt;else gData.push({name:p.name,cnt:p.cnt,order:gOrderN++});document.getElementById('gIn').value='';renderGroup();}
 function delGroup(o){for(var i=0;i<gData.length;i++){if(gData[i].order===o){gData.splice(i,1);break;}}renderGroup();}
 function editGName(el,order){if(el.classList.contains('ph-name'))return;var cur=el.textContent;var inp=document.createElement('input');inp.className='edit-input';inp.value=cur;inp.style.width='130px';el.replaceWith(inp);inp.focus();inp.select();function save(){var v=inp.value.trim()||cur;for(var i=0;i<gData.length;i++){if(gData[i].order===order){gData[i].name=v;break;}}renderGroup();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=cur;inp.blur();}});}
-function editGCnt(el,order){var r=null;for(var i=0;i<gData.length;i++){if(gData[i].order===order){r=gData[i];break;}}if(!r)return;var inp=document.createElement('input');inp.className='edit-input';inp.type='number';inp.value=r.cnt;el.replaceWith(inp);inp.focus();inp.select();function save(){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0)r.cnt=v;renderGroup();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});}
+function editGCnt(el,order){var r=null;for(var i=0;i<gData.length;i++){if(gData[i].order===order){r=gData[i];break;}}if(!r)return;
+  // 편집 전 현재 순위 기준으로 order 재정렬 → 동률 시 기존 위치 유지
+  var preSorted=gData.slice().sort(function(a,b){return b.cnt!==a.cnt?b.cnt-a.cnt:a.order-b.order;});
+  preSorted.forEach(function(item,idx){item.order=idx;});
+  gOrderN=gData.length;
+  var inp=document.createElement('input');inp.className='edit-input';inp.type='number';inp.value=r.cnt;el.replaceWith(inp);inp.focus();inp.select();function save(){var v=parseInt(inp.value);if(!isNaN(v)&&v>=0)r.cnt=v;renderGroup();}inp.addEventListener('blur',save);inp.addEventListener('keydown',function(e){if(e.key==='Enter')inp.blur();});}
 
 /* ── 초기화 ── */
 function resetAll(){if(!confirm('모든 펀딩 정보를 초기화할까요?'))return;leftData=[];rightData=[];orderL=0;orderR=0;gData=[];gOrderN=0;document.getElementById('memo').value='';document.getElementById('teamCount').value=5;renderLeft();renderRight();updateStats();renderGroup();}
