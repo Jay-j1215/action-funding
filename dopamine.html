@@ -1582,7 +1582,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
 // ========== 슬롯머신 ==========
 var SLOT_COLORS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#6366f1'];
 var ITEM_H = 130;
-var slotMode = 'duo'; // 'single' | 'duo'
+var slotMode = 'duo';
 var slotSpinning = false;
 var slotRoundNum = 0;
 var slotResults = [];
@@ -1600,13 +1600,91 @@ function renderSlotResults(){
   }).join('');
 }
 
-// 릴 상태 배열 — 싱글은 [릴0], 듀오는 [릴0, 릴1]
 var slotReels = [];
-// 각 릴: { items:[], reelItems:[], offset:0, canvas:null, ctx:null, winner:null, raf:null }
+function _makeReel(){
+  return {items:[], reelItems:[], offset:0, canvas:null, ctx:null, winner:null, raf:null,
+          deck:[],       // 현재 덱 (각 항목 2개씩, 총 2n개)
+          seenInDeck:{}  // 현재 덱에서 이미 뽑힌 항목 집합
+         };
+}
 
-function _makeReel(){ return {items:[], reelItems:[], offset:0, canvas:null, ctx:null, winner:null, raf:null}; }
+// ── 암호학적 균등 랜덤 정수 [0, n) ──
+function _cryptoRandInt(n){
+  if(window.crypto && window.crypto.getRandomValues){
+    var arr = new Uint32Array(1);
+    var limit = Math.floor(0x100000000 / n) * n;
+    do { window.crypto.getRandomValues(arr); } while(arr[0] >= limit);
+    return arr[0] % n;
+  }
+  return Math.floor(Math.random() * n);
+}
 
-/* ── 모드 전환 ── */
+// ── 덱 생성 ──
+// 구성: [n개 셔플] + [n개 셔플] → 전체 2n개를 한 번 더 셔플
+// triggeredBy: 동일 항목 2번째 등장으로 리셋된 경우 해당 항목명
+//   → 새 덱에서 triggeredBy 항목은 반드시 3번째(index 2) 이후에만 배치
+function _refillDeck(r, triggeredBy){
+  var n = r.items.length;
+  // 구역1: 0~n-1 셔플
+  var block1 = [];
+  for(var i = 0; i < n; i++) block1.push(i);
+  for(var i = n-1; i > 0; i--){
+    var j = _cryptoRandInt(i+1);
+    var t = block1[i]; block1[i] = block1[j]; block1[j] = t;
+  }
+  // 구역2: 0~n-1 셔플
+  var block2 = [];
+  for(var i = 0; i < n; i++) block2.push(i);
+  for(var i = n-1; i > 0; i--){
+    var j = _cryptoRandInt(i+1);
+    var t = block2[i]; block2[i] = block2[j]; block2[j] = t;
+  }
+  // 합친 후 전체 한 번 셔플
+  var deck = block1.concat(block2);
+  for(var i = deck.length-1; i > 0; i--){
+    var j = _cryptoRandInt(i+1);
+    var t = deck[i]; deck[i] = deck[j]; deck[j] = t;
+  }
+  // triggeredBy 항목이 0번 또는 1번 위치에 있으면 index 2 이후로 이동
+  if(triggeredBy !== undefined && triggeredBy !== null){
+    for(var pos = 0; pos <= 1; pos++){
+      if(r.items[deck[pos]] === triggeredBy){
+        var candidates = [];
+        for(var k = 2; k < deck.length; k++){
+          if(r.items[deck[k]] !== triggeredBy) candidates.push(k);
+        }
+        if(candidates.length > 0){
+          var swap = candidates[_cryptoRandInt(candidates.length)];
+          var t = deck[pos]; deck[pos] = deck[swap]; deck[swap] = t;
+        }
+      }
+    }
+  }
+  r.deck = deck;
+  r.seenInDeck = {};
+}
+
+// ── 덱에서 winner 뽑기 ──
+// 규칙:
+//   - 덱이 비어있으면 새 덱 생성 (최초 or 10개 소진)
+//   - 뽑은 값이 현재 덱에서 처음 등장 → seenInDeck에 기록, 계속 진행
+//   - 뽑은 값이 현재 덱에서 2번째 등장 → 결과는 유효,
+//     즉시 새 덱 생성 (해당 항목은 새 덱 3번째 이후에만 배치)
+function _pickFromDeck(r){
+  if(r.deck.length === 0) _refillDeck(r, null);
+  var idx = r.deck.shift();
+  var winner = r.items[idx];
+  if(r.seenInDeck[winner]){
+    // 2번째 등장 → 결과 유효, 새 덱 생성 (triggeredBy 전달)
+    r.winner = winner;
+    _refillDeck(r, winner); // 해당 항목 새 덱 앞 2자리 배제
+  } else {
+    r.seenInDeck[winner] = true;
+    r.winner = winner;
+  }
+  return winner;
+}
+
 function setSlotMode(mode){
   if(slotSpinning) return;
   slotMode = mode;
@@ -1619,49 +1697,43 @@ function _buildSlotUI(){
   var reelsWrap = document.getElementById('slotReelsWrap');
   var inputsWrap = document.getElementById('slotInputsWrap');
   var count = slotMode==='duo' ? 2 : 1;
-
-  // 기존 릴 items 보존
-  var prevItems = slotReels.map(function(r){return r.items.slice();});
+  var prevReels = slotReels.map(function(r){
+    return {items:r.items.slice(), deck:r.deck.slice(), seenInDeck:r.seenInDeck, winner:r.winner};
+  });
   slotReels = [];
-
-  // 릴 창들: 단일 slot-reels-wrap 컨테이너 안에
   var reelsInner = '<div class="slot-center-line"></div>';
   var inputsHTML = '';
-
   for(var i=0;i<count;i++){
     var label = slotMode==='duo' ? (i===0?'LEFT':'RIGHT') : '';
     reelsInner += '<div class="slot-reel-window" id="slotWin'+i+'">'
       + (slotMode==='duo' ? '<div class="slot-reel-label">'+label+'</div>' : '')
       + '<canvas id="slotCanvas'+i+'" height="200"></canvas>'
       + '</div>';
-
     inputsHTML += '<div class="slot-input-panel">'
       + (slotMode==='duo'?'<div class="slot-input-label">'+(i===0?'LEFT':'RIGHT')+'</div>':'')
       + '<input class="slot-input" id="slotInput'+i+'" placeholder="항목 입력 후 엔터" onkeydown="handleSlotInput(event,'+i+')">'
       + '<div class="slot-tags" id="slotTags'+i+'"></div>'
       + '</div>';
-
     var reel = _makeReel();
-    reel.items = (prevItems[i]||[]).slice();
+    if(prevReels[i]){
+      reel.items      = prevReels[i].items.slice();
+      reel.deck       = prevReels[i].deck.slice();
+      reel.seenInDeck = prevReels[i].seenInDeck || {};
+      reel.winner     = prevReels[i].winner;
+    }
     slotReels.push(reel);
   }
-
   reelsWrap.innerHTML = reelsInner;
   inputsWrap.innerHTML = inputsHTML;
-
-  // 태그 먼저 렌더
   for(var i=0;i<count;i++){
-    var reel=slotReels[i];
     _buildReelItems(i);
     renderSlotTags(i);
   }
-
-  // DOM 레이아웃 확정 후 canvas 크기 정확히 읽기
   var _count=count;
   requestAnimationFrame(function(){
     for(var i=0;i<_count;i++){
       _initReelCanvas(i);
-      _drawReel(i,false);
+      _drawReel(i, false);
     }
   });
 }
@@ -1681,229 +1753,247 @@ function _initReelCanvas(idx){
 
 function _buildReelItems(idx){
   var r = slotReels[idx];
-  if(!r.items.length){r.reelItems=[];return;}
-  var repeat = Math.max(8, Math.ceil(40/r.items.length));
+  if(!r.items.length){ r.reelItems = []; return; }
+  var n = r.items.length;
+  var repeat = Math.max(20, Math.ceil(100 / n));
   r.reelItems = [];
-  for(var rep=0;rep<repeat;rep++)
-    for(var i=0;i<r.items.length;i++)
-      r.reelItems.push({label:r.items[i], color:SLOT_COLORS[i%SLOT_COLORS.length]});
+  for(var rep = 0; rep < repeat; rep++){
+    var order = [];
+    for(var i = 0; i < n; i++) order.push(i);
+    for(var i = n-1; i > 0; i--){
+      var j = _cryptoRandInt(i + 1);
+      var t = order[i]; order[i] = order[j]; order[j] = t;
+    }
+    for(var k = 0; k < n; k++){
+      var itemIdx = order[k];
+      r.reelItems.push({ label: r.items[itemIdx], color: SLOT_COLORS[itemIdx % SLOT_COLORS.length] });
+    }
+  }
 }
 
 function _drawReel(idx, highlight){
   var r = slotReels[idx];
-  if(!r.ctx||!r.canvas) return;
-  var W=r.canvas.width, H=r.canvas.height, n=r.reelItems.length;
-  r.ctx.clearRect(0,0,W,H);
-  r.ctx.fillStyle='#0a0f1e';
-  r.ctx.fillRect(0,0,W,H);
-  if(!n){
-    r.ctx.fillStyle='#475569';
-    r.ctx.font='bold 13px Malgun Gothic,sans-serif';
-    r.ctx.textAlign='center';r.ctx.textBaseline='middle';
-    r.ctx.fillText('항목을 추가해주세요',W/2,H/2);
+  if(!r.ctx || !r.canvas) return;
+  var W = r.canvas.width, H = r.canvas.height;
+  r.ctx.clearRect(0, 0, W, H);
+  r.ctx.fillStyle = '#0a0f1e';
+  r.ctx.fillRect(0, 0, W, H);
+  var centerY = H / 2;
+
+  if(!r.reelItems.length){
+    r.ctx.fillStyle = '#475569';
+    r.ctx.font = 'bold 13px Malgun Gothic,sans-serif';
+    r.ctx.textAlign = 'center'; r.ctx.textBaseline = 'middle';
+    r.ctx.fillText('항목을 추가해주세요', W/2, H/2);
     return;
   }
-  var centerY = H/2;
 
-  // offset이 증가할수록 릴이 위로 올라감 (아래 항목이 올라옴)
-  // 중앙에 표시되는 아이템 인덱스 = floor(offset / ITEM_H) % n
-  // 아이템 i의 y좌표 = centerY + (i - floor(offset/ITEM_H)) * ITEM_H - (offset % ITEM_H)
+  if(highlight && r.winner !== null){
+    var n = r.reelItems.length;
+    var centerIdx = Math.floor(r.offset / ITEM_H) % n;
+    for(var di = -1; di <= 1; di++){
+      if(di === 0) continue;
+      var itemIdx = ((centerIdx + di) % n + n) % n;
+      var item = r.reelItems[itemIdx];
+      var y = centerY - ITEM_H/2 + di * ITEM_H;
+      r.ctx.save();
+      r.ctx.globalAlpha = 0.18;
+      r.ctx.fillStyle = 'rgba(15,23,42,0.5)';
+      r.ctx.beginPath(); r.ctx.roundRect(2, y+1, W-4, ITEM_H-2, 8); r.ctx.fill();
+      r.ctx.fillStyle = item.color;
+      r.ctx.beginPath(); r.ctx.roundRect(2, y+1, 6, ITEM_H-2, 4); r.ctx.fill();
+      r.ctx.fillStyle = '#475569';
+      r.ctx.font = 'bold 18px Malgun Gothic,sans-serif';
+      r.ctx.textAlign = 'center'; r.ctx.textBaseline = 'middle';
+      var dtxt = item.label.length > 12 ? item.label.slice(0,11)+'…' : item.label;
+      r.ctx.fillText(dtxt, W/2+6, y + ITEM_H/2);
+      r.ctx.restore();
+    }
+    var winColor = SLOT_COLORS[r.items.indexOf(r.winner) % SLOT_COLORS.length];
+    r.ctx.fillStyle = 'rgba(251,191,36,0.35)';
+    r.ctx.beginPath(); r.ctx.roundRect(2, centerY - ITEM_H/2 + 1, W-4, ITEM_H-2, 8); r.ctx.fill();
+    r.ctx.fillStyle = winColor;
+    r.ctx.beginPath(); r.ctx.roundRect(2, centerY - ITEM_H/2 + 1, 10, ITEM_H-2, 4); r.ctx.fill();
+    r.ctx.fillStyle = '#fbbf24';
+    r.ctx.font = 'bold 28px Malgun Gothic,sans-serif';
+    r.ctx.textAlign = 'center'; r.ctx.textBaseline = 'middle';
+    r.ctx.shadowColor = 'rgba(0,0,0,0.9)'; r.ctx.shadowBlur = 8;
+    var wtxt = r.winner.length > 12 ? r.winner.slice(0,11)+'…' : r.winner;
+    r.ctx.fillText(wtxt, W/2+6, centerY);
+    r.ctx.shadowBlur = 0;
+    r.ctx.strokeStyle = 'rgba(251,191,36,0.95)'; r.ctx.lineWidth = 2.5;
+    r.ctx.beginPath(); r.ctx.moveTo(0, centerY - ITEM_H/2); r.ctx.lineTo(W, centerY - ITEM_H/2); r.ctx.stroke();
+    r.ctx.beginPath(); r.ctx.moveTo(0, centerY + ITEM_H/2); r.ctx.lineTo(W, centerY + ITEM_H/2); r.ctx.stroke();
+    return;
+  }
+
+  var n = r.reelItems.length;
   var centerIdx = Math.floor(r.offset / ITEM_H) % n;
-  var frac = r.offset % ITEM_H; // 0~ITEM_H 사이의 소수 부분
-
+  var frac = r.offset % ITEM_H;
   for(var di = -1; di <= 1; di++){
     var itemIdx = ((centerIdx + di) % n + n) % n;
     var item = r.reelItems[itemIdx];
-    // di=0이 중앙: y = centerY - ITEM_H/2
-    // di=-1이면 위에, di=+1이면 아래에
     var y = centerY - ITEM_H/2 + di * ITEM_H - frac;
-
     if(y + ITEM_H < -10 || y > H + 10) continue;
-
     var isCenter = (di === 0);
     var dist = Math.abs(y + ITEM_H/2 - centerY);
-    var alpha = isCenter ? 1 : Math.max(0.18, 1 - dist/110);
-
+    var alpha = isCenter ? 1 : Math.max(0.18, 1 - dist / 110);
     r.ctx.save();
     r.ctx.globalAlpha = alpha;
-
-    // 배경
-    if(isCenter && highlight){
-      r.ctx.fillStyle='rgba(251,191,36,0.35)';
-    } else if(isCenter){
-      r.ctx.fillStyle='rgba(71,85,105,1)';
-    } else {
-      r.ctx.fillStyle='rgba(15,23,42,0.5)';
-    }
-    r.ctx.beginPath();
-    r.ctx.roundRect(2, y+1, W-4, ITEM_H-2, 8);
-    r.ctx.fill();
-
-    // 컬러 바 (isCenter는 더 두껍게)
+    r.ctx.fillStyle = isCenter ? 'rgba(71,85,105,1)' : 'rgba(15,23,42,0.5)';
+    r.ctx.beginPath(); r.ctx.roundRect(2, y+1, W-4, ITEM_H-2, 8); r.ctx.fill();
     r.ctx.fillStyle = item.color;
     r.ctx.globalAlpha = isCenter ? 1 : alpha * 0.6;
-    r.ctx.beginPath();
-    r.ctx.roundRect(2, y+1, isCenter?10:6, ITEM_H-2, 4);
-    r.ctx.fill();
+    r.ctx.beginPath(); r.ctx.roundRect(2, y+1, isCenter ? 10 : 6, ITEM_H-2, 4); r.ctx.fill();
     r.ctx.globalAlpha = alpha;
-
-    // 텍스트
-    r.ctx.fillStyle = (highlight&&isCenter) ? '#fbbf24' : (isCenter ? '#ffffff' : '#475569');
-    var fs = isCenter ? (highlight?28:26) : 18;
-    r.ctx.font = 'bold '+fs+'px Malgun Gothic,sans-serif';
-    r.ctx.textAlign = 'center';
-    r.ctx.textBaseline = 'middle';
-    r.ctx.shadowColor = 'rgba(0,0,0,0.9)';
-    r.ctx.shadowBlur = isCenter ? 8 : 2;
-    var txt = item.label.length>12 ? item.label.slice(0,11)+'…' : item.label;
-    r.ctx.fillText(txt, W/2+6, y+ITEM_H/2);
+    r.ctx.fillStyle = isCenter ? '#ffffff' : '#475569';
+    r.ctx.font = 'bold ' + (isCenter ? 26 : 18) + 'px Malgun Gothic,sans-serif';
+    r.ctx.textAlign = 'center'; r.ctx.textBaseline = 'middle';
+    r.ctx.shadowColor = 'rgba(0,0,0,0.9)'; r.ctx.shadowBlur = isCenter ? 8 : 2;
+    var txt = item.label.length > 12 ? item.label.slice(0,11)+'…' : item.label;
+    r.ctx.fillText(txt, W/2+6, y + ITEM_H/2);
     r.ctx.restore();
   }
-
-  // 중앙 강조선
-  r.ctx.strokeStyle = highlight ? 'rgba(251,191,36,0.95)' : 'rgba(251,191,36,0.5)';
-  r.ctx.lineWidth = highlight ? 2.5 : 1.5;
-  r.ctx.beginPath();r.ctx.moveTo(0,centerY-ITEM_H/2);r.ctx.lineTo(W,centerY-ITEM_H/2);r.ctx.stroke();
-  r.ctx.beginPath();r.ctx.moveTo(0,centerY+ITEM_H/2);r.ctx.lineTo(W,centerY+ITEM_H/2);r.ctx.stroke();
+  r.ctx.strokeStyle = 'rgba(251,191,36,0.5)'; r.ctx.lineWidth = 1.5;
+  r.ctx.beginPath(); r.ctx.moveTo(0, centerY - ITEM_H/2); r.ctx.lineTo(W, centerY - ITEM_H/2); r.ctx.stroke();
+  r.ctx.beginPath(); r.ctx.moveTo(0, centerY + ITEM_H/2); r.ctx.lineTo(W, centerY + ITEM_H/2); r.ctx.stroke();
 }
 
-/* ── 입력/태그 ── */
 function handleSlotInput(e, idx){
-  if(e.key!=='Enter') return;
-  var inp=document.getElementById('slotInput'+idx);
-  var val=inp.value.trim();
+  if(e.key !== 'Enter') return;
+  var inp = document.getElementById('slotInput' + idx);
+  var val = inp.value.trim();
   if(!val) return;
-  var r=slotReels[idx];
-  if(r.items.indexOf(val)===-1){
+  var r = slotReels[idx];
+  if(r.items.indexOf(val) === -1){
     r.items.push(val);
-    inp.value='';
+    inp.value = '';
+    r.deck = []; r.seenInDeck = {}; // 항목 변경 시 덱 리셋
     renderSlotTags(idx);
     _buildReelItems(idx);
     _initReelCanvas(idx);
-    _drawReel(idx,false);
+    _drawReel(idx, false);
   }
 }
 
 function renderSlotTags(idx){
-  var r=slotReels[idx];
-  var c=document.getElementById('slotTags'+idx);
+  var r = slotReels[idx];
+  var c = document.getElementById('slotTags' + idx);
   if(!c) return;
-  c.innerHTML=r.items.map(function(item,i){
-    return '<div class="slot-tag" style="background:'+SLOT_COLORS[i%SLOT_COLORS.length]+';">'
-      +'<span>'+escHtml(item)+'</span>'
-      +'<button class="slot-tag-x" onclick="removeSlotItem('+idx+','+i+')">×</button></div>';
+  c.innerHTML = r.items.map(function(item, i){
+    return '<div class="slot-tag" style="background:' + SLOT_COLORS[i % SLOT_COLORS.length] + ';">'
+      + '<span>' + escHtml(item) + '</span>'
+      + '<button class="slot-tag-x" onclick="removeSlotItem(' + idx + ',' + i + ')">×</button></div>';
   }).join('');
 }
 
 function removeSlotItem(reelIdx, itemIdx){
   if(slotSpinning) return;
-  slotReels[reelIdx].items.splice(itemIdx,1);
+  slotReels[reelIdx].items.splice(itemIdx, 1);
+  slotReels[reelIdx].deck = []; slotReels[reelIdx].seenInDeck = {};
   renderSlotTags(reelIdx);
   _buildReelItems(reelIdx);
-  _drawReel(reelIdx,false);
+  _drawReel(reelIdx, false);
 }
 
 function shuffleSlots(){
   if(slotSpinning) return;
-  slotReels.forEach(function(r,idx){
-    var s=r.items.slice();
-    for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t;}
-    r.items=s;
+  slotReels.forEach(function(r, idx){
+    var s = r.items.slice();
+    for(var i = s.length-1; i > 0; i--){ var j = _cryptoRandInt(i+1); var t = s[i]; s[i]=s[j]; s[j]=t; }
+    r.items = s;
+    r.deck = []; r.seenInDeck = {};
     renderSlotTags(idx);
     _buildReelItems(idx);
-    _drawReel(idx,false);
+    _drawReel(idx, false);
   });
 }
 
-/* ── 스핀 ── */
 function pullSlotLever(){
   if(slotSpinning) return;
-  // 빈 릴 체크
-  for(var i=0;i<slotReels.length;i++){
-    if(slotReels[i].items.length===0) return;
+  for(var i = 0; i < slotReels.length; i++){
+    if(slotReels[i].items.length === 0) return;
   }
-  slotSpinning=true;
-  document.getElementById('btnSlotSpin').disabled=true;
+  slotSpinning = true;
+  document.getElementById('btnSlotSpin').disabled = true;
 
-  var knob=document.getElementById('slotLever');
-  knob.classList.remove('active');void knob.offsetWidth;
+  var knob = document.getElementById('slotLever');
+  knob.classList.remove('active'); void knob.offsetWidth;
   knob.classList.add('active');
-  setTimeout(function(){knob.classList.remove('active');},520);
+  setTimeout(function(){ knob.classList.remove('active'); }, 520);
 
-  var winners=[];
-  var finishedCount=0;
+  var speedProfiles = [
+    { maxSpeed: 22 + _cryptoRandInt(6),  dur: 4000 + _cryptoRandInt(800) },
+    { maxSpeed: 36 + _cryptoRandInt(8),  dur: 2400 + _cryptoRandInt(600) }
+  ];
 
-  slotReels.forEach(function(r,idx){
+  var finishedCount = 0;
+
+  slotReels.forEach(function(r, idx){
+    // 셔플덱에서 winner 뽑기
+    // 규칙: 현재 덱에서 2번째 등장한 값 → 결과 유효 + 즉시 새 덱
+    _pickFromDeck(r);
+
     _buildReelItems(idx);
-    _initReelCanvas(idx); // canvas 크기 재확인
+    _initReelCanvas(idx);
 
-    r.winner=r.items[Math.floor(Math.random()*r.items.length)];
-    winners.push(r.winner);
-
-    // 중앙 공식: reelItems[floor(offset/ITEM_H) % n] → offset = targetIdx*ITEM_H
-    var targetIdx=-1;
-    for(var i=r.reelItems.length-1;i>=0;i--){
-      if(r.reelItems[i].label===r.winner){targetIdx=i;break;}
-    }
     var loopLen = r.reelItems.length * ITEM_H;
-    var snapOffset = targetIdx * ITEM_H; // 정확히 중앙에 winner
-    r.offset=0;
+    r.offset = _cryptoRandInt(loopLen);
 
-    var dur=3200+idx*400+Math.random()*800;
-    var maxSpeed=26;
+    var prof = speedProfiles[idx];
 
-    (function spin(idx,r,snapOffset,dur){
-      var t0=null;
+    (function spinReel(idx, r, dur, maxSpeed, loopLen){
+      var t0 = null;
       function loop(ts){
-        if(!t0) t0=ts;
-        var el=ts-t0, pr=Math.min(el/dur,1);
+        if(!t0) t0 = ts;
+        var el = ts - t0, pr = Math.min(el / dur, 1);
         var ease;
-        if(pr<0.25) ease=pr/0.25;
-        else if(pr<0.7) ease=1;
-        else ease=1-Math.pow((pr-0.7)/0.3,2);
-        r.offset=(r.offset+maxSpeed*ease)%(r.reelItems.length*ITEM_H);
-        _drawReel(idx,false);
-        if(pr<1){r.raf=requestAnimationFrame(loop);}
-        else{
-          r.offset=snapOffset;
-          _drawReel(idx,false);
-          // 스냅 후 실제 중앙에 표시되는 아이템을 렌더링 공식과 동일하게 읽음
-          var n=r.reelItems.length;
-          r.winner = r.reelItems[Math.floor(r.offset/ITEM_H) % n].label;
+        if     (pr < 0.20) ease = pr / 0.20;
+        else if(pr < 0.72) ease = 1;
+        else               ease = 1 - Math.pow((pr - 0.72) / 0.28, 2);
+        r.offset = (r.offset + Math.round(maxSpeed * ease)) % loopLen;
+        _drawReel(idx, false);
+        if(pr < 1){
+          r.raf = requestAnimationFrame(loop);
+        } else {
           setTimeout(function(){
-            _drawReel(idx,true);
-            var win=document.getElementById('slotWin'+idx);
-            if(win){win.classList.add('winning');setTimeout(function(){win.classList.remove('winning');},1500);}
+            _drawReel(idx, true);
+            var win = document.getElementById('slotWin' + idx);
+            if(win){
+              win.classList.add('winning');
+              setTimeout(function(){ win.classList.remove('winning'); }, 1500);
+            }
             finishedCount++;
-            if(finishedCount>=slotReels.length){
-              slotSpinning=false;
-              document.getElementById('btnSlotSpin').disabled=false;
-              var resultText = slotMode==='single'
+            if(finishedCount >= slotReels.length){
+              slotSpinning = false;
+              document.getElementById('btnSlotSpin').disabled = false;
+              var resultText = slotMode === 'single'
                 ? slotReels[0].winner
-                : slotReels[0].winner+' / '+slotReels[1].winner;
+                : slotReels[0].winner + ' / ' + slotReels[1].winner;
               slotRoundNum++;
-              slotResults.push({round:slotRoundNum, text:resultText});
+              slotResults.push({ round: slotRoundNum, text: resultText });
               renderSlotResults();
               showWinner(resultText);
             }
-          },120);
+          }, 120);
         }
       }
-      r.raf=requestAnimationFrame(loop);
-    })(idx,r,snapOffset,dur);
+      r.raf = requestAnimationFrame(loop);
+    })(idx, r, prof.dur, prof.maxSpeed, loopLen);
   });
 }
 
 function resetSlots(){
   if(slotSpinning) return;
   slotReels.forEach(function(r){
-    if(r.raf){cancelAnimationFrame(r.raf);r.raf=null;}
-    r.items=[];r.reelItems=[];r.offset=0;r.winner=null;
+    if(r.raf){ cancelAnimationFrame(r.raf); r.raf = null; }
+    r.items = []; r.reelItems = []; r.offset = 0; r.winner = null;
+    r.deck = []; r.seenInDeck = {};
   });
-  slotSpinning=false;
-  slotRoundNum=0;
-  slotResults=[];
-  document.getElementById('btnSlotSpin').disabled=false;
+  slotSpinning = false;
+  slotRoundNum = 0;
+  slotResults  = [];
+  document.getElementById('btnSlotSpin').disabled = false;
   renderSlotResults();
   _buildSlotUI();
 }
