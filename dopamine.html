@@ -12,14 +12,8 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#6b
 .tab{padding:8px 24px;border-radius:8px;font-size:18px;font-weight:700;color:#bae6fd;cursor:pointer;transition:all 0.15s;border:none;background:transparent;}
 .tab:hover{background:rgba(255,255,255,0.15);}
 .tab.active{background:#fff;color:#075985;}
-
-/* ✅ 수정 1: body → main-body (body 태그명 충돌 방지) */
 .main-body{display:flex;flex:1;overflow:hidden;min-height:0;}
-
-/* ✅ 수정 2: 좌측 너비를 flex로 변경, 고정 min-width 제거 */
 .left{flex:1;display:flex;flex-direction:column;align-items:center;padding:46px 14px 14px;background:#f8fafc;border-right:1px solid #e2e8f0;overflow:hidden;}
-
-/* ✅ 수정 3: 휠 크기를 120%로 확대 (408px → 490px) */
 .wheel-wrap{position:relative;width:490px;height:490px;flex-shrink:0;}
 .needle{position:absolute;top:-14.4px;left:50%;transform:translateX(-50%);z-index:10;width:0;height:0;border-left:17.28px solid transparent;border-right:17.28px solid transparent;border-top:51.84px solid #1e293b;filter:drop-shadow(0 2.88px 5.76px rgba(0,0,0,0.4));}
 canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
@@ -30,8 +24,6 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 .player-input{width:100%;padding:10px 14px;border:2px solid #bae6fd;border-radius:10px;font-size:17px;font-weight:600;color:#1e293b;outline:none;background:#fff;font-family:inherit;height:48px;}
 .player-input:focus{border-color:#0ea5e9;}
 .player-input::placeholder{color:#94a3b8;font-weight:500;}
-
-/* ✅ 수정 4: 태그 영역 기본 1라인, 최대 4라인까지 확장 */
 .player-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:36px;max-height:144px;overflow-y:auto;}
 .player-tags::-webkit-scrollbar{width:4px;}
 .player-tags::-webkit-scrollbar-thumb{background:#bae6fd;border-radius:3px;}
@@ -46,12 +38,8 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 .btn-shuffle{background:#4ade80;color:#fff;}
 .btn-spin{background:#0ea5e9;color:#fff;}
 .btn-reset{background:#f97316;color:#fff;}
-
-/* ✅ 수정 5: 우측 너비 고정, flex-shrink 방지 */
 .right{width:280px;flex-shrink:0;display:flex;flex-direction:column;padding:20px 16px;background:#fff;overflow:hidden;}
 .result-title{font-size:20px;font-weight:800;color:#075985;margin-bottom:12px;text-align:center;}
-
-/* ✅ 수정 6: 결과 리스트 flex:1 + overflow-y:auto 정상 동작 보장 */
 .result-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:0;}
 .result-list::-webkit-scrollbar{width:4px;}
 .result-list::-webkit-scrollbar-thumb{background:#bae6fd;border-radius:3px;}
@@ -92,7 +80,7 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 .ladder-top-input{width:110px;padding:8px;border:2px solid #bae6fd;border-radius:8px;font-size:16px;font-weight:600;text-align:center;margin-bottom:8px;background:#fff;}
 .ladder-top-input:focus{border-color:#0ea5e9;outline:none;}
 .ladder-top-input:disabled{background:#f1f5f9;cursor:not-allowed;}
-.ladder-top-input.clickable{cursor:pointer;}
+.ladder-top-input
 .ladder-top-input.clickable:hover{background:#e0f2fe;}
 
 .ladder-line-wrap{width:100%;height:360px;position:relative;display:flex;justify-content:center;align-items:stretch;}
@@ -103,7 +91,7 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 .ladder-bottom-input{width:110px;padding:8px;border:2px solid #bae6fd;border-radius:8px;font-size:16px;font-weight:600;text-align:center;margin-top:8px;background:#fff;}
 .ladder-bottom-input:focus{border-color:#0ea5e9;outline:none;}
 .ladder-bottom-input:disabled{background:#f1f5f9;cursor:not-allowed;}
-.ladder-bottom-input.clickable{cursor:pointer;}
+.ladder-bottom-input
 .ladder-bottom-input.clickable:hover{background:#e0f2fe;}
 
 .ladder-path-vertical{position:absolute;width:6px;background:#0ea5e9;border-radius:3px;left:50%;transform:translateX(-50%);z-index:10;}
@@ -132,7 +120,7 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
   z-index:20;pointer-events:none;
 }
 /* 당첨공 확인 영역 레이블 */
-.ball-winner-zone-label{font-size:9px;font-weight:700;color:#64748b;text-align:center;line-height:1.3;}
+
 .ball-input-area{padding:6px 20px 10px;flex-shrink:0;}
 .ball-input{width:100%;padding:9px 13px;border:2px solid #bae6fd;border-radius:10px;font-size:14px;font-weight:600;color:#1e293b;outline:none;background:#fff;font-family:inherit;margin-bottom:7px;}
 .ball-input:focus{border-color:#0ea5e9;}
@@ -154,7 +142,7 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 .ball-controls{display:flex;gap:10px;}
 
 /* ========== 슬롯머신 스타일 ========== */
-.slot-container{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+
 .slot-machine-area{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 80px 0 20px;min-height:0;}
 .slot-mode-bar{display:flex;align-items:center;justify-content:center;gap:0;padding:10px 0 0;flex-shrink:0;}
 .slot-mode-btn{padding:7px 32px;border:2px solid #334155;background:#1e293b;color:#64748b;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;}
@@ -432,6 +420,16 @@ canvas#wheel{border-radius:50%;box-shadow:0 5.76px 28.8px rgba(0,0,0,0.2);}
 </div>
 
 <script>
+function _cryptoRandInt(n){
+  if(window.crypto && window.crypto.getRandomValues){
+    var arr = new Uint32Array(1);
+    var limit = Math.floor(0x100000000 / n) * n;
+    do { window.crypto.getRandomValues(arr); } while(arr[0] >= limit);
+    return arr[0] % n;
+  }
+  return Math.floor(Math.random() * n);
+}
+
 // ========== 탭 전환 기능 ==========
 function switchTab(tabName){
   // 모든 탭 버튼의 active 클래스 제거
@@ -453,7 +451,7 @@ function switchTab(tabName){
 
 // ========== 룰렛 기능 ==========
 var players=[], results=[], roundNum=0, spinning=false, currentAngle=0;
-var W=490; // ✅ 캔버스 크기 120% 확대 (408 → 490)
+var W=490;
 
 var COLORS=['#38bdf8','#f97316','#4ade80','#f472b6','#a78bfa','#facc15','#22d3ee','#fb923c','#86efac','#c084fc','#fde68a','#67e8f9','#fdba74','#6ee7b7','#e879f9'];
 function getColor(i){ return COLORS[i%COLORS.length]; }
@@ -475,8 +473,6 @@ function renderTags(){
     return '<div class="ptag" style="background:'+getColor(i)+'">'+escHtml(p)+'<button class="ptag-x" onclick="removePlayer('+i+')">✕</button></div>';
   }).join('');
 }
-
-// ✅ 수정 8: XSS 방지용 이스케이프
 function escHtml(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -524,7 +520,7 @@ function drawWheel(){
 function shuffle(){
   if(spinning||players.length<2) return;
   for(var i=players.length-1;i>0;i--){
-    var j=Math.floor(Math.random()*(i+1));
+    var j=_cryptoRandInt(i+1);
     var tmp=players[i]; players[i]=players[j]; players[j]=tmp;
   }
   renderTags(); drawWheel();
@@ -584,8 +580,6 @@ function renderResults(){
     return '<div class="result-item"><span class="result-round">R'+r.round+'</span><span class="result-arrow">→</span><span class="result-name">'+escHtml(r.name)+'</span></div>';
   }).join('');
 }
-
-// ✅ 수정 11: 버튼 상태 관리
 function updateBtns(){
   var s=document.getElementById('btnSpin');
   var sh=document.getElementById('btnShuffle');
@@ -686,7 +680,7 @@ function updateScrollButtons(){
 
 function generateHorizontals(){
   var count = ladderState.count;
-  var horizontalCount = 10 + Math.floor(Math.random() * 8);
+  var horizontalCount = 10 + _cryptoRandInt(8);
   var horizontals = [];
   
   var usedPositions = [];
@@ -696,8 +690,8 @@ function generateHorizontals(){
     var position, column;
     
     do {
-      position = 10 + Math.random() * 80;
-      column = Math.floor(Math.random() * (count - 1));
+      position = 10 + _cryptoRandInt(800) / 10;
+      column = _cryptoRandInt(count - 1);
       attempts++;
       
       var valid = true;
@@ -1184,15 +1178,25 @@ var _idleRAF = null;
 var _windCycle = 0;
 
 function renderBallGlobe(){ _initBodies(); _drawCanvas(); if(!ballState.picking) _startIdleAnimation(); }
-function generateBallPositions(){}
 
 function _initBodies(){
-  _bc.bodies = ballState.items.map(function(label,i){
-    var angle=(i/Math.max(ballState.items.length,1))*Math.PI*2;
-    var r=GLOBE_R*0.42;
+  // 항목 인덱스를 셔플해서 물리 배치 순서 랜덤화 (label/color는 origIdx 기준 유지)
+  var idxOrder = ballState.items.map(function(_,i){ return i; });
+  for(var si=idxOrder.length-1; si>0; si--){
+    var sj=_cryptoRandInt(si+1);
+    var st=idxOrder[si]; idxOrder[si]=idxOrder[sj]; idxOrder[sj]=st;
+  }
+  var n = idxOrder.length;
+  _bc.bodies = idxOrder.map(function(origIdx, placementIdx){
+    // 각 공을 원형으로 균등 배치한 뒤 랜덤 오프셋 추가 → 겹침 방지
+    var baseAngle = (placementIdx / n) * Math.PI * 2;
+    var jitter = (_cryptoRandInt(600) / 600 - 0.5) * (Math.PI * 2 / n * 0.8);
+    var angle = baseAngle + jitter;
+    var r = GLOBE_R * (0.20 + _cryptoRandInt(25) / 100);
     return {x:CX+Math.cos(angle)*r, y:CY+Math.sin(angle)*r,
             vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4,
-            color:ballColors[i%ballColors.length], label:label,
+            color:ballColors[origIdx%ballColors.length],
+            label:ballState.items[origIdx],
             alive:true, exiting:false, exitProgress:0};
   });
 }
@@ -1372,7 +1376,7 @@ function _settleToBottom(onDone){
 function shuffleBalls(){
   if(ballState.picking) return;
   var s=ballState.items.slice();
-  for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=s[i];s[i]=s[j];s[j]=t;}
+  for(var i=s.length-1;i>0;i--){var j=_cryptoRandInt(i+1);var t=s[i];s[i]=s[j];s[j]=t;}
   ballState.items=s; renderBallTags(); _initBodies(); _startIdleAnimation();
 }
 
@@ -1384,154 +1388,122 @@ function pickBalls(){
   ballState.picking=true;
   document.getElementById('btnBallPick').disabled=true;
 
-  var order=ballState.items.map(function(_,i){return i;});
-  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t;}
-  var toPick=order.slice(0,count), picked=[];
+  // ── 뽑기 시작 시점에 결과 덱을 완전히 확정 ──
+  // 물리엔진/배치 순서와 100% 무관하게 crypto 균등 랜덤으로만 결정
+  var order = ballState.items.map(function(_,i){ return i; });
+  for(var i=order.length-1;i>0;i--){
+    var j=_cryptoRandInt(i+1);
+    var t=order[i]; order[i]=order[j]; order[j]=t;
+  }
+  // 뽑힐 순서 덱: label/color만 저장, 물리 공 객체와 무관
+  var resultDeck = order.slice(0, count).map(function(idx){
+    return { label: ballState.items[idx], color: ballColors[idx % ballColors.length] };
+  });
+  var deckPos = 0; // 다음에 배출할 덱 위치
 
-  if(_idleRAF){cancelAnimationFrame(_idleRAF);_idleRAF=null;}
+  if(_idleRAF){ cancelAnimationFrame(_idleRAF); _idleRAF=null; }
   _bc.phase='mixing';
 
-  // 배출구: 캔버스 정중앙 상단
   var exitX = CX;
   var exitY = CY - GLOBE_R + BALL_R + 2;
 
-  // ── 배출공 애니메이션 (배출구 → 배출라인 → 당첨공 영역) ──
-  function animateDischarge(b, label, color, onDone){
-    var openX=186, openY=27;
-    var upY=27;
-    var tubeX=413;
-    var tubeTopY=27;
-    var tubeBottomY=342;
-    var destX=413, destY=398;
-    var R=26;
-
+  // ── 배출 애니메이션: label/color를 인자로 받아 표시 (공 객체 무관) ──
+  function animateDischarge(label, color, onDone){
+    var tubeX=413, tubeBottomY=342, destY=398, R=26;
     var ball=document.getElementById('ballShowcaseBall');
     ball.textContent=label;
-    ball.style.background=color;
-    ball.style.width=(R*2)+'px'; ball.style.height=(R*2)+'px';
-    ball.style.fontSize='9px';
-    ball.style.left=(openX-R)+'px';
-    ball.style.top=(openY-R)+'px';
-    ball.style.display='flex';
-    ball.style.opacity='1';
-    ball.style.transform='scale(0.9)';
-    ball.style.transition='none';
+    ball.style.cssText='width:'+(R*2)+'px;height:'+(R*2)+'px;font-size:9px;'
+      +'left:'+( 186-R)+'px;top:'+(27-R)+'px;'
+      +'display:flex;opacity:1;transform:scale(0.9);transition:none;'
+      +'background:'+color+';border-radius:50%;position:absolute;'
+      +'align-items:center;justify-content:center;color:#fff;font-weight:700;';
 
+    // 글로브 물리 계속 진행 (배출 애니메이션 중 공들이 움직임)
     var keepRAF=null;
     function keepMoving(){ _physicsStep(0.04); _drawCanvas(); keepRAF=requestAnimationFrame(keepMoving); }
     keepRAF=requestAnimationFrame(keepMoving);
 
-    setTimeout(function(){
-      ball.style.transition='top 0.2s ease-out';
-      ball.style.top=(upY-R)+'px';
-      setTimeout(function(){
-        ball.style.transition='left 0.4s linear';
-        ball.style.left=(tubeX-R)+'px';
-        setTimeout(function(){
-          ball.style.transition='top 0.85s cubic-bezier(0.4,0,0.8,1)';
-          ball.style.top=(tubeBottomY-R)+'px';
-          setTimeout(function(){
-            ball.style.transition='top 0.15s ease-out';
-            ball.style.top=(destY-R)+'px';
-            ballState.results.push({pickNum:ballState.results.length+1,label:label,color:color});
-            renderBallResults();
-            setTimeout(function(){
-              ball.style.transition='opacity 0.35s ease-out,transform 0.35s ease-out';
-              ball.style.opacity='0';
-              ball.style.transform='scale(0.3)';
-              setTimeout(function(){
-                ball.style.display='none';
-                ball.style.opacity='1'; ball.style.transform='scale(1)';
-                cancelAnimationFrame(keepRAF);
-                onDone();
-              },380);
-            },1000);
-          },200);
-        },420);
-      },220);
-    },60);
+    // 배출구 → 튜브 → 결과 영역 순차 이동
+    function step1(){ ball.style.transition='left 0.4s linear'; ball.style.left=(tubeX-R)+'px'; }
+    function step2(){ ball.style.transition='top 0.85s cubic-bezier(0.4,0,0.8,1)'; ball.style.top=(tubeBottomY-R)+'px'; }
+    function step3(){
+      ball.style.transition='top 0.15s ease-out'; ball.style.top=(destY-R)+'px';
+      ballState.results.push({pickNum:ballState.results.length+1, label:label, color:color});
+      renderBallResults();
+    }
+    function step4(){
+      ball.style.transition='opacity 0.35s ease-out,transform 0.35s ease-out';
+      ball.style.opacity='0'; ball.style.transform='scale(0.3)';
+    }
+    function step5(){
+      ball.style.display='none'; ball.style.opacity='1'; ball.style.transform='scale(1)';
+      cancelAnimationFrame(keepRAF);
+      onDone();
+    }
+    setTimeout(step1, 60);
+    setTimeout(step2, 60+420);
+    setTimeout(step3, 60+420+850+200);
+    setTimeout(step4, 60+420+850+200+1000);
+    setTimeout(step5, 60+420+850+200+1000+380);
   }
 
-  // ── 믹싱 후 뽑기 반복 ──
-  var remainPick = count; // 남은 뽑기 횟수
-
+  // ── 믹싱 후 배출 반복 ──
   function doMixThenPick(){
     var mixDur=3000+Math.random()*2000, mixStart=null;
     _bc.phase='mixing';
-
     function mixLoop(ts){
       if(!mixStart) mixStart=ts;
       var el=ts-mixStart, pr=el/mixDur;
       var wind = pr<0.7 ? 0.7 : 0.7*Math.pow(1-(pr-0.7)/0.3,1.2);
       _physicsStep(wind); _drawCanvas();
       if(el<mixDur) _bc.raf=requestAnimationFrame(mixLoop);
-      else { _bc.phase='picking'; _bc.raf=null; doPick(); }
+      else { _bc.phase='picking'; _bc.raf=null; doPickNext(); }
     }
     _bc.raf=requestAnimationFrame(mixLoop);
   }
 
-  function doPick(){
-    // 배출구에 가장 가까운 공 선택
-    var best=null, bestDist=Infinity;
-    _bc.bodies.forEach(function(b){
-      if(!b.alive||b.exiting) return;
-      var dx=b.x-exitX, dy=b.y-exitY;
-      var d=Math.sqrt(dx*dx+dy*dy);
-      if(d<bestDist){bestDist=d;best=b;}
-    });
-    if(!best){
-      // 살아있는 공 없음 → 완료
-      finish(); return;
-    }
+  // ── 배출: 덱에서 다음 결과를 꺼내고, 물리공 하나를 페이드아웃 후 배출 ──
+  function doPickNext(){
+    if(deckPos >= resultDeck.length){ finish(); return; }
 
-    var b=best;
-    var sx=b.x,sy=b.y,moveDur=380,moveStart=null;
-    function moveToExit(ts){
-      if(!moveStart) moveStart=ts;
-      var p=Math.min((ts-moveStart)/moveDur,1);
-      var ease=p*p;
-      b.x=sx+(exitX-sx)*ease; b.y=sy+(exitY-sy)*ease; b.vx=0; b.vy=0;
-      _physicsStep(0.02); _drawCanvas();
-      if(p<1){ _bc.raf=requestAnimationFrame(moveToExit); }
-      else {
-        b.exiting=true; b.exitProgress=0;
-        var exitDur=200, exitStart2=null;
-        function doExit(ts2){
-          if(!exitStart2) exitStart2=ts2;
-          b.exitProgress=Math.min((ts2-exitStart2)/exitDur,1);
-          b.y=exitY - b.exitProgress*40;
-          _physicsStep(0.02); _drawCanvas();
-          if(b.exitProgress<1){ _bc.raf=requestAnimationFrame(doExit); }
-          else {
-            b.alive=false;
-            var label=b.label, color=b.color;
-            picked.push(label);
-            remainPick--;
-            animateDischarge(b, label, color, function(){
-              if(remainPick>0){
-                // 다음 공: 다시 믹싱 후 뽑기
-                doMixThenPick();
-              } else {
-                finish();
-              }
-            });
-          }
-        }
-        _bc.raf=requestAnimationFrame(doExit);
+    // 덱에서 결과 확정
+    var result = resultDeck[deckPos++];
+
+    // result.label과 일치하는 살아있는 공을 찾아서 그 공이 배출되도록
+    // → 글로브 안에서 보이는 공과 결과가 항상 일치
+    var alive=[];
+    _bc.bodies.forEach(function(b){ if(b.alive&&!b.exiting) alive.push(b); });
+    if(!alive.length){ finish(); return; }
+
+    // label이 일치하는 공 우선 선택, 없으면 아무 공 (방어 코드)
+    var matched = alive.filter(function(b){ return b.label === result.label; });
+    var target = matched.length > 0
+      ? matched[_cryptoRandInt(matched.length)]
+      : alive[_cryptoRandInt(alive.length)];
+
+    // 대상 공을 글로브에서 즉시 제거
+    target.alive = false;
+
+    // 배출 애니메이션: 제거된 공의 label/color로 표시
+    animateDischarge(result.label, result.color, function(){
+      if(deckPos < resultDeck.length){
+        doMixThenPick();
+      } else {
+        finish();
       }
-    }
-    _bc.raf=requestAnimationFrame(moveToExit);
+    });
   }
 
   function finish(){
     setTimeout(function(){
       ballState.picking=false;
       document.getElementById('btnBallPick').disabled=false;
+      // 공을 다시 채우고 정착 애니메이션 실행
+      _initBodies();
       _settleToBottom();
-    },300);
+    }, 300);
   }
 
-  // 첫 믹싱 시작
   doMixThenPick();
 }
 
@@ -1609,15 +1581,6 @@ function _makeReel(){
 }
 
 // ── 암호학적 균등 랜덤 정수 [0, n) ──
-function _cryptoRandInt(n){
-  if(window.crypto && window.crypto.getRandomValues){
-    var arr = new Uint32Array(1);
-    var limit = Math.floor(0x100000000 / n) * n;
-    do { window.crypto.getRandomValues(arr); } while(arr[0] >= limit);
-    return arr[0] % n;
-  }
-  return Math.floor(Math.random() * n);
-}
 
 // ── 덱 생성 ──
 // 구성: [n개 셔플] + [n개 셔플] → 전체 2n개를 한 번 더 셔플
@@ -2046,5 +2009,6 @@ window.addEventListener('message', function(e){
 });
 
 </script>
+
 </body>
 </html>
